@@ -1,7 +1,10 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/utils/colors.dart';
+import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/text_fields.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -16,6 +19,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
+  Uint8List? _image;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -27,8 +32,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _usernameController.dispose();
   }
 
-  void selectImage(){
-    
+  void selectImage() async {
+    Uint8List im = await pickImage(ImageSource.gallery);
+
+    setState(() {
+      _image = im;
+    });
+  }
+
+  void signUpUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    String res = await AuthMethods().signUpUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+      username: _usernameController.text,
+      bio: _bioController.text,
+      file: _image!, // image with not null
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (res != 'success') {
+      showSnackBar(res, context);
+    }
   }
 
   @override
@@ -41,22 +72,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              SizedBox(
+                height: 40,
+              ),
               SvgPicture.asset(
                 'images/ic_instagram.svg',
                 color: primaryColor,
                 height: 64,
               ),
               SizedBox(
-                height: 60,
+                height: 30,
               ),
               Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 64,
-                    backgroundImage: NetworkImage(
-                      'https://www.google.com/url?sa=i&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FElon_Musk&psig=AOvVaw0PoNXSBoLI4XSlVbvCLXmR&ust=1701835792992000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCIj7u8K294IDFQAAAAAdAAAAABAD',
-                    ),
-                  ),
+                  _image != null
+                      ? CircleAvatar(
+                          radius: 64,
+                          backgroundImage: MemoryImage(_image!),
+                        )
+                      : CircleAvatar(
+                          radius: 64,
+                          backgroundImage: AssetImage(
+                            'images/Default_pfp.svg.png',
+                          ),
+                        ),
                   Positioned(
                     bottom: -10,
                     left: 80,
@@ -70,7 +109,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ],
               ),
               SizedBox(
-                height: 10,
+                height: 30,
               ),
               TextFieldInput(
                 hintText: 'Enter your username: ',
@@ -106,6 +145,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 height: 30,
               ),
               InkWell(
+                onTap: signUpUser,
                 child: Container(
                   width: double.infinity,
                   alignment: Alignment.center,
@@ -116,9 +156,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     color: Colors.blue,
                   ),
-                  child: Text(
-                    'Sign Up',
-                  ),
+                  child: _isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : Text(
+                          'Sign Up',
+                        ),
                 ),
               ),
               Flexible(
@@ -138,15 +182,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     width: 10,
                   ),
                   GestureDetector(
-                    onTap: () async {
-                      String res = await AuthMethods().signUpUser(
-                        email: _emailController.text,
-                        password: _passwordController.text,
-                        username: _usernameController.text,
-                        bio: _bioController.text,
-                      );
-                      print(res);
-                    },
+                    onTap: () {},
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 8),
                       child: Text(
