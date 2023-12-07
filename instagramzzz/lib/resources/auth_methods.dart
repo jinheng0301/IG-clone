@@ -16,9 +16,9 @@ class AuthMethods {
     required String password,
     required String username,
     required String bio,
-    required Uint8List file,
+    // required Uint8List file,
   }) async {
-    String res = "Some error ooccured";
+    String res = "Some error occurred";
 
     try {
       if (email.isNotEmpty ||
@@ -33,31 +33,22 @@ class AuthMethods {
 
         print(cred.user!.uid);
 
-        String photoURL = await StroageMethods()
-            .uploadImageToStorage('profilePics', file, false);
+        // String photoURL = await StorageMethods()
+        //     .uploadImageToStorage('profilePics', file, false);
 
         // add user to database
         // we need to create a collection users if it doen't exist, then we need to make this document if it's not there
         // and set this data
         // ! means user can returned as null
-        await _firestore.collection('doc').doc(cred.user!.uid).set({
+        await _firestore.collection('users').doc(cred.user!.uid).set({
           'username': username,
           'uid': cred.user!.uid,
           'email': email,
           'bio': bio,
           'followers': [],
           'following': [],
-          'pthotoURL': photoURL,
+          // 'pthotoURL': photoURL,
         });
-
-        // await _firestore.collection('users').add({
-        //   'username': username,
-        //   'uid': cred.user!.uid,
-        //   'email': email,
-        //   'bio': bio,
-        //   'followers': [],
-        //   'following': [],
-        // });
 
         res = 'Success';
       }
