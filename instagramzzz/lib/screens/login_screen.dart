@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
+import 'package:instagramzzz/responsive/responsive_layout_screen.dart';
+import 'package:instagramzzz/responsive/web_screen_layout.dart';
 import 'package:instagramzzz/screens/home_screen.dart';
+import 'package:instagramzzz/screens/sign_up_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/text_fields.dart';
@@ -39,7 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (res == 'Success') {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => HomeScreen(),
+          builder: (context) => ResponsiveLayout(
+            webScreenLayout: WebScreenLayout(),
+            mobileScreenLayout: LoginScreen(),
+          ),
         ),
       );
     } else {
@@ -49,6 +55,14 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void navigateToSignUp() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => SignUpScreen(),
+      ),
+    );
   }
 
   @override
@@ -127,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 10,
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: navigateToSignUp,
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 8),
                       child: Text(

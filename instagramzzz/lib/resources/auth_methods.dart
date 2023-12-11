@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:instagramzzz/models/user.dart' as model;
 import 'package:instagramzzz/resources/storage_methods.dart';
 
 class AuthMethods {
@@ -40,15 +41,19 @@ class AuthMethods {
         // we need to create a collection users if it doen't exist, then we need to make this document if it's not there
         // and set this data
         // ! means user can returned as null
-        await _firestore.collection('users').doc(cred.user!.uid).set({
-          'username': username,
-          'uid': cred.user!.uid,
-          'email': email,
-          'bio': bio,
-          'followers': [],
-          'following': [],
-          // 'pthotoURL': photoURL,
-        });
+        model.User user = model.User(
+          username: username,
+          uid: cred.user!.uid,
+          email: email,
+          bio: bio,
+          // photoUrl: photoUrl,
+          followers: [],
+          following: [],
+        );
+
+        await _firestore.collection('users').doc(cred.user!.uid).set(
+              user.toJson(),
+            );
 
         res = 'Success';
       }

@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:instagramzzz/responsive/mobile_screen_layout.dart';
 import 'package:instagramzzz/responsive/responsive_layout_screen.dart';
 import 'package:instagramzzz/responsive/web_screen_layout.dart';
+import 'package:instagramzzz/screens/home_screen.dart';
 import 'package:instagramzzz/screens/login_screen.dart';
 import 'package:instagramzzz/screens/sign_up_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
@@ -44,13 +45,35 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: mobileBackgroundColor,
       ),
-      // home: ResponsiveLayout(
-      //   webScreenLayout: WebScreenLayout(),
-      //   mobileScreenLayout: MobileScreenLayout(),
-      // ),
       home: StreamBuilder(
-        stream: FirebaseAuth.instance.userChanges(),
-        builder: (context, snapshot) {},
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.active) {
+            if (snapshot.hasData) {
+              // if snapshot has data means useer has been authenticated
+              // then shhows the responsive layout
+              return ResponsiveLayout(
+                webScreenLayout: const WebScreenLayout(),
+                mobileScreenLayout: const MobileScreenLayout(),
+              );
+            } else if (snapshot.hasError) {
+              return const Center(
+                child: Text(
+                  'Some error occured.',
+                ),
+              );
+            }
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: primaryColor,
+              ),
+            );
+          }
+          return const LoginScreen();
+          // snapshot doesnt have any data means user has not been authenticated
+        },
       ),
     );
   }
