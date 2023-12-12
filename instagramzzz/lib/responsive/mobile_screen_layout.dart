@@ -1,7 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:instagramzzz/models/user.dart' as model;
+import 'package:instagramzzz/providers/user_provider.dart';
+import 'package:instagramzzz/utils/colors.dart';
+import 'package:instagramzzz/utils/global_variables.dart';
+import 'package:provider/provider.dart';
 
 class MobileScreenLayout extends StatefulWidget {
   const MobileScreenLayout({super.key});
@@ -11,61 +17,88 @@ class MobileScreenLayout extends StatefulWidget {
 }
 
 class _MobileScreenLayoutState extends State<MobileScreenLayout> {
-  String username = '';
+  int _page = 0;
+  late PageController pageController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getUsername();
+    pageController = PageController();
   }
 
-  // void getUsername() async {
-  //   DocumentSnapshot snap = await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(FirebaseAuth.instance.currentUser!.uid)
-  //       .get();
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    pageController.dispose();
+  }
 
-  //   setState(() {
-  //     username = (snap.data() as Map<String, dynamic>)['username'];
-  //   });
-  // }
+  void navigationTapped(int page) {
+    pageController.jumpToPage(page);
+  }
 
-  void getUsername() async {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      print("User UID: ${user.uid}");
-      DocumentSnapshot snap = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      print("Document Exists: ${snap.exists}");
-
-      if (snap.exists) {
-        Map<String, dynamic>? data = snap.data() as Map<String, dynamic>?;
-
-        if (data != null) {
-          setState(() {
-            username = data['username'];
-          });
-        } else {
-          print("Data is null");
-        }
-      } else {
-        print("Document does not exist");
-      }
-    } else {
-      print("User not authenticated");
-    }
+  void onPageChanged(int page) {
+    setState(() {
+      _page = page;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    model.User user = Provider.of<UserProvider>(context).getUser;
+
     return Scaffold(
-      body: Center(
-        child: Text('$username'),
+      body: PageView(
+        controller: pageController,
+        onPageChanged: onPageChanged,
+        physics: NeverScrollableScrollPhysics(),
+        children: homeScreenItems,
+      ),
+      bottomNavigationBar: CupertinoTabBar(
+        onTap: navigationTapped,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.home,
+              color: _page == 0 ? primaryColor : secondaryColor,
+            ),
+            label: '',
+            backgroundColor: primaryColor,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.search,
+              color: _page == 1 ? primaryColor : secondaryColor,
+            ),
+            label: '',
+            backgroundColor: primaryColor,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.add_circle,
+              color: _page == 2 ? primaryColor : secondaryColor,
+            ),
+            label: '',
+            backgroundColor: primaryColor,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.favorite_outline_outlined,
+              color: _page == 3 ? primaryColor : secondaryColor,
+            ),
+            label: '',
+            backgroundColor: primaryColor,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.person,
+              color: _page == 4 ? primaryColor : secondaryColor,
+            ),
+            label: '',
+            backgroundColor: primaryColor,
+          ),
+        ],
       ),
     );
   }

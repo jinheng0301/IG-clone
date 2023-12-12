@@ -8,6 +8,15 @@ class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  Future<model.User> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot snap =
+        await _firestore.collection('users').doc(currentUser.uid).get();
+
+    return model.User.fromSnap(snap);
+  }
+
   // sign up user
   // Future: all the calls that we make to the firebase is asynchronous
   // so the functions return type changes to the Future
@@ -17,7 +26,7 @@ class AuthMethods {
     required String password,
     required String username,
     required String bio,
-    // required Uint8List file,
+    required Uint8List file,
   }) async {
     String res = "Some error occurred";
 
@@ -34,8 +43,8 @@ class AuthMethods {
 
         print(cred.user!.uid);
 
-        // String photoURL = await StorageMethods()
-        //     .uploadImageToStorage('profilePics', file, false);
+        String photoUrl = await StorageMethods()
+            .uploadImageToStorage('profilePics', file, false);
 
         // add user to database
         // we need to create a collection users if it doen't exist, then we need to make this document if it's not there
@@ -46,7 +55,7 @@ class AuthMethods {
           uid: cred.user!.uid,
           email: email,
           bio: bio,
-          // photoUrl: photoUrl,
+          photoUrl: photoUrl,
           followers: [],
           following: [],
         );
