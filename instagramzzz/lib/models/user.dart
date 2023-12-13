@@ -29,32 +29,30 @@ class User {
         'following': following,
       };
 
-  
   static User fromSnap(DocumentSnapshot<Object?> snap) {
-  var snapshot = snap.data() as Map<String, dynamic>?;
+    var snapshot = snap.data() as Map<String, dynamic>?;
 
-  if (snapshot != null) {
-    return User(
-      username: snapshot['username'],
-      uid: snapshot['uid'],
-      email: snapshot['email'],
-      photoUrl: snapshot['photoUrl'],
-      bio: snapshot['bio'],
-      followers: snapshot['followers'],
-      following: snapshot['following'],
-    );
-  } else {
-    // Handle the case when data is null, for example, return a default User.
-    return User(
-      email: '',
-      uid: '',
-      photoUrl: '',
-      username: '',
-      bio: '',
-      followers: 0,
-      following: 0,
-    );
+    if (snapshot != null) {
+      return User(
+        username: snapshot['username'],
+        uid: snapshot['uid'],
+        email: snapshot['email'],
+        photoUrl: snapshot['photoUrl'],
+        bio: snapshot['bio'],
+        followers: snapshot['followers'],
+        following: snapshot['following'],
+      );
+    } else {
+      // Handle the case when data is null, for example, return a default User.
+      return User(
+        email: '',
+        uid: '',
+        photoUrl: '',
+        username: '',
+        bio: '',
+        followers: 0,
+        following: 0,
+      );
+    }
   }
-}
-
 }
