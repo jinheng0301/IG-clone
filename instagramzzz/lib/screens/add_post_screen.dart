@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagramzzz/models/user.dart';
 import 'package:instagramzzz/providers/user_provider.dart';
-import 'package:instagramzzz/responsive/firestore_method.dart';
+import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
 import 'package:provider/provider.dart';

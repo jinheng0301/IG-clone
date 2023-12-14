@@ -57,7 +57,7 @@ class FeedScreen extends StatelessWidget {
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               return PostCard(
-                // snap: snapshot.data!.docs
+                snap: snapshot.data!.docs[index].data(),
               );
             },
           );

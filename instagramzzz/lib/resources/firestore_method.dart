@@ -21,7 +21,8 @@ class FirestoreMethods {
       String photoUrl =
           await StorageMethods().uploadImageToStorage('posts', file, true);
 
-      String postId = Uuid().v1();
+      String postId = Uuid().v1(); // create a unique id based on time
+
       Post post = Post(
         description: description,
         uid: uid,
@@ -41,5 +42,23 @@ class FirestoreMethods {
     }
 
     return res;
+  }
+
+  // updating likes
+  Future<void> likePost(String postId, String uid, List likes) async {
+    try {
+      if (likes.contains(uid)) {
+        // we already liked the post in the past
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayRemove([uid])
+        });
+      } else {
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayUnion([uid])
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }
