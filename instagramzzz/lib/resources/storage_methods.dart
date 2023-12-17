@@ -4,7 +4,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
 
 class StorageMethods {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instanceFor(bucket: 'ig-clone-2c574.appspot.com');
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // add image to firebase storage

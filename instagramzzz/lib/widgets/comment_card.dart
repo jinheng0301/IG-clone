@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CommentCard extends StatefulWidget {
-  const CommentCard({super.key});
+  final snap;
+  CommentCard({required this.snap});
 
   @override
   State<CommentCard> createState() => _CommentCardState();
@@ -16,7 +18,7 @@ class _CommentCardState extends State<CommentCard> {
         children: [
           CircleAvatar(
             backgroundImage: NetworkImage(
-              '',
+              widget.snap['profPic'],
             ),
             radius: 18,
           ),
@@ -31,13 +33,13 @@ class _CommentCardState extends State<CommentCard> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: 'username',
+                          text: widget.snap['name'],
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         TextSpan(
-                          text: 'some description to insert',
+                          text: ' ${widget.snap['text']}',
                         ),
                       ],
                     ),
@@ -45,15 +47,21 @@ class _CommentCardState extends State<CommentCard> {
                   Padding(
                     padding: EdgeInsets.only(top: 4),
                     child: Text(
-                      '16/12/23',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+                      DateFormat.yMMMd().format(
+                        widget.snap['datePublished'],
+                      ),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ),
+
+          //TODO: implement like function
           Container(
             padding: EdgeInsets.all(8),
             child: Icon(

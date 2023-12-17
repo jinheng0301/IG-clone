@@ -31,9 +31,11 @@ void main() async {
         appId: '1:975393109152:android:544be423787d1ff661c5c5',
         messagingSenderId: '975393109152',
         projectId: 'ig-clone-2c574',
+        storageBucket: 'ig-clone-2c574.appspot.com',
       ),
     );
   }
+
   runApp(const MyApp());
 }
 
