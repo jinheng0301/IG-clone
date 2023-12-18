@@ -29,8 +29,10 @@ class FeedScreen extends StatelessWidget {
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('posts').snapshots(),
-        builder: (context,
-            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+        builder: (
+          context,
+          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+        ) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(),
@@ -42,8 +44,8 @@ class FeedScreen extends StatelessWidget {
           //     return PostCard();
           //   },
           // );
-          // The error "Null check operator used on a null value" occurs when you're trying to access a property or method on a null object. 
-          // In this case, it means that snapshot.data is null. 
+          // The error "Null check operator used on a null value" occurs when you're trying to access a property or method on a null object.
+          // In this case, it means that snapshot.data is null.
           // To avoid this error, you should check if snapshot.data is not null before trying to access its properties.
 
           if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
