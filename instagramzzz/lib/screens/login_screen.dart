@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
+import 'package:instagramzzz/responsive/mobile_screen_layout.dart';
 import 'package:instagramzzz/responsive/responsive_layout_screen.dart';
 import 'package:instagramzzz/responsive/web_screen_layout.dart';
+import 'package:instagramzzz/screens/feed_screen.dart';
 import 'package:instagramzzz/screens/home_screen.dart';
 import 'package:instagramzzz/screens/sign_up_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
@@ -45,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(
           builder: (context) => ResponsiveLayout(
             webScreenLayout: WebScreenLayout(),
-            mobileScreenLayout: LoginScreen(),
+            mobileScreenLayout: MobileScreenLayout(),
           ),
         ),
       );

@@ -251,13 +251,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 DocumentSnapshot snap =
                                     (snapshot.data! as dynamic).docs[index];
 
-                                return Container(
-                                  child: Image(
-                                    image: NetworkImage(
-                                        (snap.data()! as dynamic)['posturl']),
-                                    fit: BoxFit.cover,
-                                  ),
-                                );
+                                // Check if the 'posturl' field is not null before creating NetworkImage
+                                if ((snap.data()! as dynamic)['posturl'] !=
+                                    null) {
+                                  return Container(
+                                    child: Image(
+                                      image: NetworkImage(
+                                        (snap.data()! as dynamic)['posturl']
+                                            .toString(),
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  );
+                                } else {
+                                  // Handle the case where 'posturl' is null (you can show a placeholder)
+                                  return Container(
+                                    // Your placeholder widget or text here
+                                    child: Text('No image available'),
+                                  );
+                                }
                               },
                             );
                           }

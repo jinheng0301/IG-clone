@@ -19,26 +19,28 @@ class FollowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 250,
-      height: 50,
-      padding: EdgeInsets.only(top: 2),
-      child: TextButton(
-        onPressed: function,
-        child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            border: Border.all(
-              color: borderColor,
+    return Expanded(
+      child: Container(
+        width: 250,
+        height: 50,
+        padding: EdgeInsets.only(top: 2),
+        child: TextButton(
+          onPressed: function,
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              border: Border.all(
+                color: borderColor,
+              ),
+              borderRadius: BorderRadius.circular(5),
             ),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.bold,
+            child: Text(
+              text,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),

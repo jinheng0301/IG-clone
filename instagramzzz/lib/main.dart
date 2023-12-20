@@ -6,9 +6,7 @@ import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/responsive/mobile_screen_layout.dart';
 import 'package:instagramzzz/responsive/responsive_layout_screen.dart';
 import 'package:instagramzzz/responsive/web_screen_layout.dart';
-import 'package:instagramzzz/screens/home_screen.dart';
 import 'package:instagramzzz/screens/login_screen.dart';
-import 'package:instagramzzz/screens/sign_up_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:provider/provider.dart';
 

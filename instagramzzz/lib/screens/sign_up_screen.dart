@@ -6,6 +6,7 @@ import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/responsive/mobile_screen_layout.dart';
 import 'package:instagramzzz/responsive/responsive_layout_screen.dart';
 import 'package:instagramzzz/responsive/web_screen_layout.dart';
+import 'package:instagramzzz/screens/feed_screen.dart';
 import 'package:instagramzzz/screens/login_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
@@ -36,17 +37,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _usernameController.dispose();
   }
 
-  // void selectImage() async {
-  //   Uint8List? im = await pickImage(ImageSource.gallery);
+  void selectImage() async {
+    Uint8List? im = await pickImage(ImageSource.gallery);
 
-  //   if (im != null) {
-  //     setState(() {
-  //       _image = im;
-  //     });
-  //   } else {
-  //     print("Image selection canceled or failed");
-  //   }
-  // }
+    if (im != null) {
+      setState(() {
+        _image = im;
+      });
+    } else {
+      print("Image selection canceled or failed");
+    }
+  }
 
   void signUpUser() async {
     print("Sign Up button clicked");
@@ -68,6 +69,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (res != 'success') {
       showSnackBar(res, context);
+
+      
     } else {
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -130,8 +133,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       bottom: -10,
                       left: 80,
                       child: IconButton(
-                        // onPressed: selectImage,
-                        onPressed: null,
+                        onPressed: selectImage,
                         icon: Icon(
                           Icons.add_a_photo,
                         ),

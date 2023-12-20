@@ -99,7 +99,7 @@ class _PostCardState extends State<PostCard> {
                                 (e) => InkWell(
                                   onTap: () async {
                                     FirestoreMethods().deletePost(
-                                      widget.snap['postsId'],
+                                      widget.snap['postsId'].toString(),
                                     );
                                     Navigator.of(context).pop();
                                   },
@@ -279,7 +279,7 @@ class _PostCardState extends State<PostCard> {
                   padding: EdgeInsets.symmetric(vertical: 4),
                   child: Text(
                     DateFormat.yMMMd().format(
-                      widget.snap['datePublished'],
+                      widget.snap['datePublished'].toDate(),
                     ),
                     style: TextStyle(
                       fontSize: 16,
