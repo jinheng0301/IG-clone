@@ -60,28 +60,33 @@ class _SearchScreenState extends State<SearchScreen> {
                 return ListView.builder(
                   itemCount: (snapshot.data! as dynamic).docs.length,
                   itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ProfileScreen(
-                              uid: (snapshot.data! as dynamic).docs[index]
-                                  ['uid'],
+                    var userData =
+                        (snapshot.data! as dynamic).docs[index].data();
+                    var uid = userData['uid'];
+                    var photoUrl = userData['photoUrl'];
+                    var username = userData['username'];
+
+                    // Check if the required fields exist
+                    if (uid != null && photoUrl != null && username != null) {
+                      return InkWell(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ProfileScreen(uid: uid),
                             ),
+                          );
+                        },
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(photoUrl),
                           ),
-                        );
-                      },
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                            (snapshot.data! as dynamic).docs[index]['photoUrl'],
-                          ),
+                          title: Text(username),
                         ),
-                        title: Text(
-                          (snapshot.data! as dynamic).docs[index]['username'],
-                        ),
-                      ),
-                    );
+                      );
+                    } else {
+                      // Handle the case where one or more fields are missing
+                      return Container(); // or some other fallback widget
+                    }
                   },
                 );
               },

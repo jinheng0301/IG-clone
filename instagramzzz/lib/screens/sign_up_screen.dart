@@ -6,7 +6,6 @@ import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/responsive/mobile_screen_layout.dart';
 import 'package:instagramzzz/responsive/responsive_layout_screen.dart';
 import 'package:instagramzzz/responsive/web_screen_layout.dart';
-import 'package:instagramzzz/screens/feed_screen.dart';
 import 'package:instagramzzz/screens/login_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
@@ -67,11 +66,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _isLoading = false;
     });
 
-    if (res != 'success') {
-      showSnackBar(res, context);
-
-      
-    } else {
+    if (res == 'Success') {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ResponsiveLayout(
@@ -80,6 +75,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         ),
       );
+    } else {
+      showSnackBar(res, context);
     }
   }
 

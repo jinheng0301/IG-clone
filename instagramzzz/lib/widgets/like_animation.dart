@@ -30,7 +30,7 @@ class _LikeAnimationState extends State<LikeAnimation>
     super.initState();
     controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: widget.duration.inMicroseconds),
+      duration: widget.duration,
     );
 
     scale = Tween<double>(begin: 1, end: 1.2).animate(controller);
@@ -46,11 +46,14 @@ class _LikeAnimationState extends State<LikeAnimation>
     }
   }
 
-  void startAnimation() async {
+  Future<void> startAnimation() async {
     if (widget.isAnimating || widget.smallLike) {
       await controller.forward();
       await controller.reverse();
       await Future.delayed(Duration(microseconds: 200));
+      if (widget.onEnd != null) {
+        widget.onEnd!();
+      }
     }
   }
 

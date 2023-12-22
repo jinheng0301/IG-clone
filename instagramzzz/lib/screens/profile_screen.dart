@@ -252,12 +252,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     (snapshot.data! as dynamic).docs[index];
 
                                 // Check if the 'posturl' field is not null before creating NetworkImage
-                                if ((snap.data()! as dynamic)['posturl'] !=
+                                if ((snap.data()! as dynamic)['postUrl'] !=
                                     null) {
                                   return Container(
                                     child: Image(
                                       image: NetworkImage(
-                                        (snap.data()! as dynamic)['posturl']
+                                        (snap.data()! as dynamic)['postUrl']
                                             .toString(),
                                       ),
                                       fit: BoxFit.cover,

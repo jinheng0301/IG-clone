@@ -94,25 +94,25 @@ class _PostCardState extends State<PostCard> {
                       builder: (context) => Dialog(
                         child: ListView(
                           padding: EdgeInsets.symmetric(vertical: 16),
-                          children: ['Delete']
-                              .map(
-                                (e) => InkWell(
-                                  onTap: () async {
-                                    FirestoreMethods().deletePost(
-                                      widget.snap['postsId'].toString(),
-                                    );
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 16,
-                                    ),
-                                    child: Text(e),
+                          children: [
+                            // Check if the current user is the owner of the post
+                            if (user.uid == widget.snap['uid'].toString())
+                              InkWell(
+                                onTap: () async {
+                                  FirestoreMethods().deletePost(
+                                    widget.snap['postId'].toString(),
+                                  );
+                                  Navigator.of(context).pop();
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 16,
                                   ),
+                                  child: Text('Delete'),
                                 ),
-                              )
-                              .toList(),
+                              ),
+                          ],
                         ),
                       ),
                     );
@@ -142,7 +142,7 @@ class _PostCardState extends State<PostCard> {
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.35,
+                  height: MediaQuery.of(context).size.height,
                   width: double.infinity,
                   child: Image(
                     image: NetworkImage(
