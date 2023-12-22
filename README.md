@@ -1,5 +1,5 @@
 Features: 
-- Responsice Instagram UI
+- Responsive Instagram UI
 - Email and password authentication
 - Share posts with caption
 - Display posts with caption
