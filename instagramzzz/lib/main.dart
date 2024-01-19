@@ -72,6 +72,7 @@ class MyApp extends StatelessWidget {
                 );
               }
             }
+
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: CircularProgressIndicator(
@@ -79,6 +80,7 @@ class MyApp extends StatelessWidget {
                 ),
               );
             }
+
             return const LoginScreen();
             // snapshot doesnt have any data means user has not been authenticated
           },

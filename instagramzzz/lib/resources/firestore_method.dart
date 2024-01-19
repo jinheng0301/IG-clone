@@ -18,8 +18,11 @@ class FirestoreMethods {
     String res = 'Some error occured';
 
     try {
-      String photoUrl =
-          await StorageMethods().uploadImageToStorage('posts', file, true);
+      String photoUrl = await StorageMethods().uploadImageToStorage(
+        'posts',
+        file,
+        true,
+      );
 
       String postId = Uuid().v1(); // create a unique id based on time
 
@@ -28,7 +31,9 @@ class FirestoreMethods {
         uid: uid,
         username: username,
         postId: postId,
-        datePublished: DateTime.now(),
+        datePublished: FieldValue.serverTimestamp(),
+        // This ensures that the documents are retrieved in descending order based on the 'datePublished' field, 
+        // allowing the latest post to be displayed at the top.
         postUrl: photoUrl,
         profImage: profImage,
         likes: [],

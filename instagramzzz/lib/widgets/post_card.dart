@@ -8,6 +8,7 @@ import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
 import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/like_animation.dart';
+import 'package:instagramzzz/widgets/zoom_image.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -141,14 +142,17 @@ class _PostCardState extends State<PostCard> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.4,
-                  width: double.infinity,
-                  child: Image(
-                    image: NetworkImage(
-                      widget.snap['postUrl'],
+                AspectRatio(
+                  aspectRatio: 14 / 20,
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    width: double.infinity,
+                    child: ZoomImage(
+                      imageUrls: [
+                        widget.snap['postUrl'],
+                      ], // Pass the list of image URLs
+                      currentIndex: 0, // Pass the current index
                     ),
-                    fit: BoxFit.cover,
                   ),
                 ),
                 AnimatedOpacity(
@@ -286,7 +290,7 @@ class _PostCardState extends State<PostCard> {
                       color: secondaryColor,
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),

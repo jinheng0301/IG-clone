@@ -34,7 +34,10 @@ class FeedScreen extends StatelessWidget {
               ],
             ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('posts').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('posts')
+            .orderBy('datePublished', descending: true)
+            .snapshots(),
         builder: (
           context,
           AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
@@ -53,6 +56,7 @@ class FeedScreen extends StatelessWidget {
           }
 
           return ListView.builder(
+            physics: BouncingScrollPhysics(),
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               return Container(
