@@ -99,6 +99,22 @@ class FirestoreMethods {
     }
   }
 
+  // deleting comment
+  Future<void> deleteComment(String postId, String commentId) async {
+    try {
+      await _firestore
+          .collection('posts')
+          .doc(postId)
+          .collection('comments')
+          .doc(commentId)
+          .delete();
+    } catch (e) {
+      print('Error deleting comment: $e');
+      // Optionally, you can handle the error or throw it again based on your requirements
+      throw e;
+    }
+  }
+
   // deleting post
   Future<void> deletePost(String postId) async {
     try {

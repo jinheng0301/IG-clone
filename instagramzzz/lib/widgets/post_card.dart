@@ -4,6 +4,7 @@ import 'package:instagramzzz/models/user.dart';
 import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/screens/comment_screen.dart';
+import 'package:instagramzzz/screens/profile_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
 import 'package:instagramzzz/utils/utils.dart';
@@ -65,25 +66,47 @@ class _PostCardState extends State<PostCard> {
             ).copyWith(right: 0),
             child: Row(
               children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    widget.snap['profImage'],
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(
+                          uid: widget.snap['uid'],
+                        ),
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(
+                      widget.snap['profImage'],
+                    ),
                   ),
                 ),
                 Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.snap['username'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ProfileScreen(
+                            uid: widget.snap['uid'],
                           ),
-                        )
-                      ],
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.snap['username'],
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -110,7 +133,7 @@ class _PostCardState extends State<PostCard> {
                                     vertical: 12,
                                     horizontal: 16,
                                   ),
-                                  child: Text('Delete'),
+                                  child: Text('Delete post'),
                                 ),
                               ),
                           ],
@@ -245,29 +268,61 @@ class _PostCardState extends State<PostCard> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.only(top: 8),
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: widget.snap['username'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ProfileScreen(
+                              uid: widget.snap['uid'],
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(top: 8),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: widget.snap['username'],
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        TextSpan(
-                          text: '  ${widget.snap['description']}',
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    Container(
+                      padding: EdgeInsets.only(left: 10, top: 8),
+                      child: RichText(
+                        text: TextSpan(
+                          text: '${widget.snap['description']}',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
 
                 // VIEW COMMENTS
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: CommentScreen(snap: widget.snap),
+                      ),
+                    );
+                  },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 4),
                     child: Text(

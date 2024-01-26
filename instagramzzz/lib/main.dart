@@ -58,8 +58,8 @@ class MyApp extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.active) {
               if (snapshot.hasData) {
-                // if snapshot has data means useer has been authenticated
-                // then shhows the responsive layout
+                // if snapshot has data means user has been authenticated
+                // then shows the responsive layout
                 return ResponsiveLayout(
                   webScreenLayout: const WebScreenLayout(),
                   mobileScreenLayout: const MobileScreenLayout(),

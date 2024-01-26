@@ -46,21 +46,24 @@ class _CommentScreenState extends State<CommentScreen> {
             .orderBy('datePublished', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
+          print('StreamBuilder Snapshot: ${snapshot}');
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(),
             );
           } else {
-            return ListView.builder(
-              itemCount: (snapshot.data as dynamic).docs.length,
-              itemBuilder: (context, index) {
-                // Without the return statement,
-                // the CommentCard widgets are not being returned, and as a result,
-                // they are not being displayed on the screen.
-                return CommentCard(
-                  snap: (snapshot.data as dynamic).docs[index].data(),
-                );
-              },
+            return GestureDetector(
+              child: ListView.builder(
+                itemCount: (snapshot.data as dynamic).docs.length,
+                itemBuilder: (context, index) {
+                  // Without the return statement,
+                  // the CommentCard widgets are not being returned, and as a result,
+                  // they are not being displayed on the screen.
+                  return CommentCard(
+                    snap: (snapshot.data as dynamic).docs[index].data(),
+                  );
+                },
+              ),
             );
           }
         },

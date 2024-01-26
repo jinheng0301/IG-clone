@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:instagramzzz/resources/firestore_method.dart';
+import 'package:instagramzzz/screens/profile_screen.dart';
 import 'package:intl/intl.dart';
 
 class CommentCard extends StatefulWidget {
   final snap;
+
   CommentCard({required this.snap});
 
   @override
@@ -10,17 +13,76 @@ class CommentCard extends StatefulWidget {
 }
 
 class _CommentCardState extends State<CommentCard> {
+  void _showDeleteCommentDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Delete Comment'),
+          content: Text('Are you sure you want to delete this comment?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                print('Comment Data: ${widget.snap}');
+                print(
+                  'postId: ${widget.snap['postId']}, commentId: ${widget.snap['commentId']}',
+                );
+                Navigator.of(dialogContext).pop(); // Close the dialog
+                await _deleteComment();
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteComment() async {
+    try {
+      if (widget.snap['postId'] != null && widget.snap['commentId'] != null) {
+        await FirestoreMethods().deleteComment(
+          widget.snap['postId'],
+          widget.snap['commentId'],
+        );
+        // Optionally, you can update the UI by rebuilding the widget or refreshing the comments
+        // Example: You can call setState(() { /* update UI */ }); or trigger a stream update.
+      } else {
+        print('Comment data is missing');
+      }
+    } catch (e) {
+      print('Error deleting comment: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
       child: Row(
         children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(
-              widget.snap['profPic'],
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ProfileScreen(
+                    uid: widget.snap['uid'],
+                  ),
+                ),
+              );
+            },
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(
+                widget.snap['profPic'],
+              ),
+              radius: 18,
             ),
-            radius: 18,
           ),
           Expanded(
             child: Padding(
@@ -29,19 +91,32 @@ class _CommentCardState extends State<CommentCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: widget.snap['name'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ProfileScreen(
+                            uid: widget.snap['uid'],
                           ),
                         ),
-                        TextSpan(
-                          text: ' ${widget.snap['text']}',
-                        ),
-                      ],
+                      );
+                    },
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: widget.snap['name'],
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      text: '${widget.snap['text']}',
                     ),
                   ),
                   Padding(
@@ -62,10 +137,16 @@ class _CommentCardState extends State<CommentCard> {
           ),
 
           //TODO: implement like function
-          Container(
-            padding: EdgeInsets.all(8),
-            child: Icon(
-              Icons.favorite,
+          GestureDetector(
+            onTap: () {
+              _showDeleteCommentDialog(context);
+            },
+            child: Container(
+              padding: EdgeInsets.all(8),
+              child: Icon(
+                Icons.favorite,
+                size: 20,
+              ),
             ),
           ),
         ],
