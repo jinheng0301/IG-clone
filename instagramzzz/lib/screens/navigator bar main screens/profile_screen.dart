@@ -3,15 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
-import 'package:instagramzzz/screens/login_screen.dart';
-import 'package:instagramzzz/screens/profile_post_screen.dart';
+import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
+import 'package:instagramzzz/screens/extend_screens/follow_screen.dart';
+import 'package:instagramzzz/screens/extend_screens/profile_post_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/follow_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
-
   ProfileScreen({required this.uid});
 
   @override
@@ -437,8 +437,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
                                     buildStatColumn(postLength, 'posts'),
-                                    buildStatColumn(followers, 'followers'),
-                                    buildStatColumn(following, 'following'),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                FollowScreen(),
+                                          ),
+                                        );
+                                      },
+                                      child: buildStatColumn(
+                                        followers,
+                                        'followers',
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                FollowScreen(),
+                                          ),
+                                        );
+                                      },
+                                      child: buildStatColumn(
+                                        following,
+                                        'following',
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 Row(

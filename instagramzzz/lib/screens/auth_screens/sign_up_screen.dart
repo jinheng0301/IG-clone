@@ -6,7 +6,7 @@ import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/responsive/mobile_screen_layout.dart';
 import 'package:instagramzzz/responsive/responsive_layout_screen.dart';
 import 'package:instagramzzz/responsive/web_screen_layout.dart';
-import 'package:instagramzzz/screens/login_screen.dart';
+import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/text_fields.dart';

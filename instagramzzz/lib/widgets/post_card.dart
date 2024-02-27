@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:instagramzzz/models/user.dart';
 import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
-import 'package:instagramzzz/screens/comment_screen.dart';
-import 'package:instagramzzz/screens/profile_screen.dart';
+import 'package:instagramzzz/screens/extend_screens/comment_screen.dart';
+import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
 import 'package:instagramzzz/utils/utils.dart';
@@ -149,6 +149,8 @@ class _PostCardState extends State<PostCard> {
             ),
           ),
 
+          SizedBox(height: 10),
+
           // IMAGE SECTION
           GestureDetector(
             // to detect the double click at the photo when user click it
@@ -166,7 +168,7 @@ class _PostCardState extends State<PostCard> {
               alignment: Alignment.center,
               children: [
                 AspectRatio(
-                  aspectRatio: 14 / 20,
+                  aspectRatio: 18 / 18,
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height,
                     width: double.infinity,

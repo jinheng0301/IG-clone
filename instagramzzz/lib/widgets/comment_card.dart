@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
-import 'package:instagramzzz/screens/profile_screen.dart';
+import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
 import 'package:intl/intl.dart';
 
 class CommentCard extends StatefulWidget {

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
 import 'package:instagramzzz/widgets/post_card.dart';
@@ -15,6 +16,46 @@ class ProfilePostScreen extends StatefulWidget {
 }
 
 class _ProfilePostScreenState extends State<ProfilePostScreen> {
+  int postLength = 0;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getPhoto();
+    super.initState();
+  }
+
+  void getPhoto() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // get post length
+      var postSnap = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .get();
+
+      postLength = postSnap.docs.length;
+
+      setState(() {});
+    } catch (e) {
+      e.toString();
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
