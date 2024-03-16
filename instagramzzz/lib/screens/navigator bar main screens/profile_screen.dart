@@ -73,7 +73,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .doc(widget.uid)
           .get();
 
-      // get post length
+      // get the following List
+      var followingList = userSnap.data()!['following'];
+
+      // get the post length
       var postSnap = await FirebaseFirestore.instance
           .collection('posts')
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
@@ -82,10 +85,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       userData = userSnap.data()!;
       postLength = postSnap.docs.length;
       followers = userSnap.data()!['followers'].length;
-      following = userSnap.data()!['following'].length;
-      isFollowing = userSnap
-          .data()!['followers']
-          .contains(FirebaseAuth.instance.currentUser!.uid);
+
+      // Update following count to the length of the following list
+      following = followingList.length;
+      isFollowing = userSnap.data()!['followers'].contains(
+            FirebaseAuth.instance.currentUser!.uid,
+          );
 
       setState(() {});
     } catch (e) {

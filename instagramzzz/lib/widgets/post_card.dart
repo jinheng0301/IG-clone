@@ -343,7 +343,7 @@ class _PostCardState extends State<PostCard> {
                       widget.snap['datePublished'].toDate(),
                     ),
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       color: secondaryColor,
                     ),
                   ),

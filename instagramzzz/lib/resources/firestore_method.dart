@@ -32,7 +32,7 @@ class FirestoreMethods {
         username: username,
         postId: postId,
         datePublished: FieldValue.serverTimestamp(),
-        // This ensures that the documents are retrieved in descending order based on the 'datePublished' field, 
+        // This ensures that the documents are retrieved in descending order based on the 'datePublished' field,
         // allowing the latest post to be displayed at the top.
         postUrl: photoUrl,
         profImage: profImage,
@@ -137,19 +137,19 @@ class FirestoreMethods {
           'followers': FieldValue.arrayRemove([uid]),
         });
 
-        // also remove the user id instead
+        // remove the user from the 'following' subcollection
         await _firestore.collection('users').doc(uid).update({
-          'followers': FieldValue.arrayRemove([followId]),
+          'following': FieldValue.arrayRemove([followId]),
         });
       } else {
-        // follow user when the followId is not contain
+        // follow user when the followId is not contained in 'following'
         await _firestore.collection('users').doc(followId).update({
           'followers': FieldValue.arrayUnion([uid]),
         });
 
-        // also follow userId instead
+        // add the user to the 'following' subcollection
         await _firestore.collection('users').doc(uid).update({
-          'followers': FieldValue.arrayUnion([followId]),
+          'following': FieldValue.arrayUnion([followId]),
         });
       }
     } catch (e) {

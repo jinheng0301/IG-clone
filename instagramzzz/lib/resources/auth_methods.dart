@@ -43,8 +43,11 @@ class AuthMethods {
 
         print(cred.user!.uid);
 
-        String photoUrl = await StorageMethods()
-            .uploadImageToStorage('profilePics', file, false);
+        String photoUrl = await StorageMethods().uploadImageToStorage(
+          'profilePics',
+          file,
+          false,
+        );
 
         // add user to database
         // we need to create a collection users if it doen't exist, then we need to make this document if it's not there
