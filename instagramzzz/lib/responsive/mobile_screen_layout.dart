@@ -76,7 +76,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.favorite_outline_outlined,
+              Icons.tiktok,
               color: _page == 3 ? primaryColor : secondaryColor,
             ),
             label: '',

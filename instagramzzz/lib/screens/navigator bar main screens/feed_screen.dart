@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagramzzz/models/user.dart';
+import 'package:instagramzzz/screens/extend_screens/message_screen.dart';
+import 'package:instagramzzz/screens/extend_screens/notification_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
 import 'package:instagramzzz/widgets/post_card.dart';
@@ -30,7 +32,25 @@ class FeedScreen extends StatelessWidget {
               ),
               actions: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => NotificationScreen(),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.favorite_outline,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => MessageScreen(),
+                      ),
+                    );
+                  },
                   icon: Icon(
                     Icons.messenger_rounded,
                   ),

@@ -21,7 +21,7 @@ class FollowButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        width: 250,
+        width: 200,
         height: 50,
         padding: EdgeInsets.only(top: 2),
         child: TextButton(
@@ -33,7 +33,7 @@ class FollowButton extends StatelessWidget {
               border: Border.all(
                 color: borderColor,
               ),
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               text,
