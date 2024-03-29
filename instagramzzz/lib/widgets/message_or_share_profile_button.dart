@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 
-class FollowButton extends StatelessWidget {
+class MessageOrShareProfileButton extends StatelessWidget {
   late final String text;
   late final Color backgroundColor;
   late final Color borderColor;
   late final Color textColor;
   final Function()? function;
-  // ? means which can be null
 
-  FollowButton({
-    required this.text,
-    this.function,
-    // function can be nullable value, so dont put required keyword
+  MessageOrShareProfileButton({
     required this.backgroundColor,
     required this.borderColor,
     required this.textColor,
+    required this.text,
+    this.function,
   });
 
   @override
@@ -35,22 +33,12 @@ class FollowButton extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  text,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(width: 10),
-                Icon(
-                  Icons.info,
-                  size: 20,
-                ),
-              ],
+            child: Text(
+              text,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),

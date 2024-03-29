@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class CommentCard extends StatefulWidget {
   final snap;
-
   CommentCard({required this.snap});
 
   @override
@@ -13,56 +14,15 @@ class CommentCard extends StatefulWidget {
 }
 
 class _CommentCardState extends State<CommentCard> {
-  void _showDeleteCommentDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text('Delete Comment'),
-          content: Text('Are you sure you want to delete this comment?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(); // Close the dialog
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                print('Comment Data: ${widget.snap}');
-                print(
-                  'postId: ${widget.snap['postId']}, commentId: ${widget.snap['commentId']}',
-                );
-                Navigator.of(dialogContext).pop(); // Close the dialog
-                await _deleteComment();
-              },
-              child: Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _deleteComment() async {
-    try {
-      if (widget.snap['postId'] != null && widget.snap['commentId'] != null) {
-        await FirestoreMethods().deleteComment(
-          widget.snap['postId'],
-          widget.snap['commentId'],
-        );
-        // Optionally, you can update the UI by rebuilding the widget or refreshing the comments
-        // Example: You can call setState(() { /* update UI */ }); or trigger a stream update.
-      } else {
-        print('Comment data is missing');
-      }
-    } catch (e) {
-      print('Error deleting comment: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Get the required parameters from the widget's snapshot
+    final postId = widget.snap['postId'].toString();
+    final commentId = widget.snap['commentId'];
+    final uid = Provider.of<UserProvider>(context).getUser.uid;
+    final likes = List<String>.from(widget.snap['likes'] ?? []);
+    final user = Provider.of<UserProvider>(context).getUser;
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
       child: Row(
@@ -138,14 +98,28 @@ class _CommentCardState extends State<CommentCard> {
 
           //TODO: implement like function
           GestureDetector(
-            onTap: () {
-              _showDeleteCommentDialog(context);
+            onTap: () async {
+              await FirestoreMethods()
+                  .likeComment(postId, commentId, uid, likes);
             },
             child: Container(
               padding: EdgeInsets.all(8),
-              child: Icon(
-                Icons.favorite,
-                size: 20,
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.favorite,
+                    size: 20,
+                    color: widget.snap['likes'].contains(user.uid)
+                        ? Colors.red
+                        : Colors.white,
+                  ),
+                  Text(
+                    '1 likes',
+                    style: TextStyle(
+                      fontSize: 11,
+                    ),
+                  )
+                ],
               ),
             ),
           ),

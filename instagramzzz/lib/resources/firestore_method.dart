@@ -99,6 +99,41 @@ class FirestoreMethods {
     }
   }
 
+  // Like a comment
+  Future<void> likeComment(
+    String postId,
+    String commentId,
+    String uid,
+    List likes,
+  ) async {
+    try {
+      if (likes.contains(uid)) {
+        // If the user already liked the comment in the past, remove the like
+        await _firestore
+            .collection('posts')
+            .doc(postId)
+            .collection('comments')
+            .doc(commentId)
+            .update({
+          'likes': FieldValue.arrayRemove([uid])
+        });
+      } else {
+        // If the user hasn't liked the comment yet, add the like
+        await _firestore
+            .collection('posts')
+            .doc(postId)
+            .collection('comments')
+            .doc(commentId)
+            .update({
+          'likes': FieldValue.arrayUnion([uid])
+        });
+      }
+    } catch (e) {
+      print('Error liking comment: $e');
+      // Optionally, you can handle the error or throw it again based on your requirements
+    }
+  }
+
   // deleting comment
   Future<void> deleteComment(String postId, String commentId) async {
     try {

@@ -7,10 +7,12 @@ import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/follow_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/message_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/profile_post_screen.dart';
+import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/add_post_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/add_people_button.dart';
 import 'package:instagramzzz/widgets/follow_button.dart';
+import 'package:instagramzzz/widgets/message_or_share_profile_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -104,6 +106,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  Future<void> _showDialogBox() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Log out mou?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('No no no, balik balik!'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await AuthMethods().logOut();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(),
+                  ),
+                );
+              },
+              child: Text('Conlan7firm!'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return isLoading
@@ -123,6 +155,118 @@ class _ProfileScreenState extends State<ProfileScreen> {
               centerTitle: false,
               actions: [
                 IconButton(
+                  onPressed: () {},
+                  icon: FirebaseAuth.instance.currentUser!.uid == widget.uid
+                      ? GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AddPostScreen(),
+                              ),
+                            );
+                          },
+                          child: Icon(Icons.add_circle_outline_outlined),
+                        )
+                      : GestureDetector(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SizedBox(
+                                  width: double.infinity,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        margin: EdgeInsets.all(8),
+                                        padding: EdgeInsets.all(8),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              userData['username'],
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Divider(),
+                                      GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
+                                          child: Text(
+                                            'Posts',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
+                                          child: Text(
+                                            'Stories',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
+                                          child: Text(
+                                            'Reels',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
+                                          child: Text(
+                                            'Goes live',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(10),
+                                        child: Text(
+                                          'Get notifications when ${userData['username']} shares photos, videos or broadcast channels.',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w100,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Icon(Icons.notification_add),
+                        ),
+                ),
+                IconButton(
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
@@ -138,8 +282,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.settings),
@@ -152,8 +296,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Report...'),
                                         ),
                                       ),
@@ -162,8 +306,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.social_distance),
@@ -176,8 +320,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Block'),
                                         ),
                                       ),
@@ -186,8 +330,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.local_activity),
@@ -200,8 +344,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('About This Account'),
                                         ),
                                       ),
@@ -210,8 +354,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.archive),
@@ -224,8 +368,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Restrict'),
                                         ),
                                       ),
@@ -234,8 +378,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.qr_code),
@@ -251,8 +395,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.bookmark),
@@ -265,8 +409,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Restrict'),
                                         ),
                                       ),
@@ -275,8 +419,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.people),
@@ -289,8 +433,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Restrict'),
                                         ),
                                       ),
@@ -299,8 +443,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.credit_card),
@@ -313,8 +457,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('See shared activity'),
                                         ),
                                       ),
@@ -323,8 +467,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.verified),
@@ -337,8 +481,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Hide your story'),
                                         ),
                                       ),
@@ -347,8 +491,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.closed_caption),
@@ -361,8 +505,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Remove follower'),
                                         ),
                                       ),
@@ -371,8 +515,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(15),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Row(
                                             children: [
                                               Icon(Icons.star_outline),
@@ -385,8 +529,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Copy Profile URL'),
                                         ),
                                       ),
@@ -396,8 +540,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Show QR code'),
                                         ),
                                       ),
@@ -407,8 +551,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.all(6),
+                                          padding: EdgeInsets.all(12),
                                           child: Text('Share this profile'),
                                         ),
                                       ),
@@ -514,31 +658,123 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   backgroundColor: mobileBackgroundColor,
                                   textColor: primaryColor,
                                   borderColor: Colors.grey,
-                                  function: () async {
-                                    await AuthMethods().logOut();
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) => LoginScreen(),
-                                      ),
-                                    );
-                                  },
+                                  function: _showDialogBox,
                                 )
                               : isFollowing
                                   ? FollowButton(
-                                      text: 'Unfollow',
+                                      text: 'Following',
                                       backgroundColor: Colors.white,
                                       textColor: Colors.black,
                                       borderColor: Colors.grey,
                                       function: () async {
-                                        await FirestoreMethods().followUser(
-                                          FirebaseAuth
-                                              .instance.currentUser!.uid,
-                                          userData['uid'],
+                                        showModalBottomSheet(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return SizedBox(
+                                              width: double.infinity,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    margin: EdgeInsets.all(8),
+                                                    padding: EdgeInsets.all(8),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          userData['username'],
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 28,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Divider(),
+                                                  GestureDetector(
+                                                    onTap: () {},
+                                                    child: Container(
+                                                      margin: EdgeInsets.all(8),
+                                                      padding:
+                                                          EdgeInsets.all(15),
+                                                      child: Text(
+                                                        'Add to close friend list',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {},
+                                                    child: Container(
+                                                      margin: EdgeInsets.all(8),
+                                                      padding:
+                                                          EdgeInsets.all(15),
+                                                      child: Text(
+                                                        'Mute',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {},
+                                                    child: Container(
+                                                      margin: EdgeInsets.all(8),
+                                                      padding:
+                                                          EdgeInsets.all(15),
+                                                      child: Text(
+                                                        'Restrict',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      await FirestoreMethods()
+                                                          .followUser(
+                                                        FirebaseAuth.instance
+                                                            .currentUser!.uid,
+                                                        userData['uid'],
+                                                      );
+                                                      setState(() {
+                                                        isFollowing = false;
+                                                        followers--;
+                                                      });
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      // dismiss the modal bottom sheet after unfollow button is tapped
+                                                    },
+                                                    child: Container(
+                                                      margin: EdgeInsets.all(8),
+                                                      padding:
+                                                          EdgeInsets.all(15),
+                                                      child: Text(
+                                                        'Unfollow',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
                                         );
-                                        setState(() {
-                                          isFollowing = false;
-                                          followers--;
-                                        });
                                       },
                                     )
                                   : FollowButton(
@@ -558,16 +794,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         });
                                       },
                                     ),
-                      
+
                           // message or share profile button
                           FirebaseAuth.instance.currentUser!.uid == widget.uid
-                              ? FollowButton(
+                              ? MessageOrShareProfileButton(
                                   text: 'Share profile',
                                   backgroundColor: mobileBackgroundColor,
                                   textColor: primaryColor,
                                   borderColor: Colors.grey,
                                 )
-                              : FollowButton(
+                              : MessageOrShareProfileButton(
                                   text: 'Message',
                                   backgroundColor: mobileBackgroundColor,
                                   borderColor: Colors.grey,
@@ -580,7 +816,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   },
                                 ),
-                      
+
                           AddPeopleButton(
                             backgroundColor: mobileBackgroundColor,
                             borderColor: Colors.grey,

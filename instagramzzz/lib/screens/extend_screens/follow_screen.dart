@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class FollowScreen extends StatefulWidget {
@@ -27,10 +26,10 @@ class _FollowScreenState extends State<FollowScreen> {
     });
 
     try {
-      var userSnap = FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.snap['followers'])
-          .get();
+      // var userSnap = FirebaseFirestore.instance
+      //     .collection('users')
+      //     .doc(widget.snap['followers'])
+      //     .get();
     } catch (e) {
       e.toString();
     }
