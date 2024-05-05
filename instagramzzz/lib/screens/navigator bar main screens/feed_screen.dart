@@ -7,6 +7,7 @@ import 'package:instagramzzz/screens/extend_screens/notification_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
 import 'package:instagramzzz/widgets/post_card.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class FeedScreen extends StatelessWidget {
   final uid;
@@ -68,7 +69,10 @@ class FeedScreen extends StatelessWidget {
         ) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: LoadingAnimationWidget.hexagonDots(
+                color: Colors.yellow,
+                size: 40,
+              ),
             );
           }
 
@@ -89,7 +93,10 @@ class FeedScreen extends StatelessWidget {
               AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> userSnapshot,
             ) {
               if (userSnapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return LoadingAnimationWidget.dotsTriangle(
+                  color: Colors.yellow,
+                  size: 40,
+                );
               }
 
               if (!userSnapshot.hasData || userSnapshot.data!.docs.isEmpty) {

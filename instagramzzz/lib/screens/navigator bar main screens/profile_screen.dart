@@ -13,6 +13,7 @@ import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/add_people_button.dart';
 import 'package:instagramzzz/widgets/follow_button.dart';
 import 'package:instagramzzz/widgets/message_or_share_profile_button.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -140,7 +141,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return isLoading
         ? Center(
-            child: CircularProgressIndicator(),
+            child: LoadingAnimationWidget.hexagonDots(
+              color: Colors.yellow,
+              size: 40,
+            ),
           )
         : Scaffold(
             appBar: AppBar(
