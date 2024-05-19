@@ -33,12 +33,6 @@ class _CommentScreenState extends State<CommentScreen> {
           title: Text('Are you sure want to delete comment?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('No no no, balik balik!'),
-            ),
-            TextButton(
               onPressed: () async {
                 await FirestoreMethods().deleteComment(postId, commentId);
                 Navigator.of(context).pop();
@@ -80,16 +74,20 @@ class _CommentScreenState extends State<CommentScreen> {
             child: ListView.builder(
               itemCount: (snapshot.data as dynamic).docs.length,
               itemBuilder: (context, index) {
-                // Without the return statement,
-                // the CommentCard widgets are not being returned, and as a result,
-                // they are not being displayed on the screen.
+                var commentSnap = (snapshot.data as dynamic).docs[index];
+                var commentData = commentSnap.data();
+                String commentId = commentSnap.id;
+
                 return GestureDetector(
-                  onTap: () => _showDialogBox(
+                  onLongPress: () => _showDialogBox(
                     widget.snap['postId'],
-                    widget.snap!['commentId'] ?? '',
+                    commentId,
                   ),
+                  // Without the return statement,
+                  // the CommentCard widgets are not being returned, and as a result,
+                  // they are not being displayed on the screen.
                   child: CommentCard(
-                    snap: (snapshot.data as dynamic).docs[index].data(),
+                    snap: commentData,
                     postId: widget.snap['postId'],
                   ),
                 );

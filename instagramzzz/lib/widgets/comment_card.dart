@@ -22,7 +22,7 @@ class _CommentCardState extends State<CommentCard> {
   @override
   Widget build(BuildContext context) {
     // Get the required parameters from the widget's snapshot
-    final postId = widget.snap['postId'].toString();
+    final postId = widget.postId;
     final commentId = widget.snap['commentId'];
     final uid = Provider.of<UserProvider>(context).getUser.uid;
     final likes = List<String>.from(widget.snap['likes'] ?? []);

@@ -143,7 +143,6 @@ class FirestoreMethods {
     } catch (e) {
       print('Error deleting comment: $e');
       // Optionally, you can handle the error or throw it again based on your requirements
-      throw e;
     }
   }
 
