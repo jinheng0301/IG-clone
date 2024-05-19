@@ -55,12 +55,12 @@ class _PostCardState extends State<PostCard> {
 
     return Container(
       color: width > webScreenSize ? secondaryColor : mobileBackgroundColor,
-      padding: EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         children: [
           // HEADER SECTION
           Container(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               vertical: 4,
               horizontal: 16,
             ).copyWith(right: 0),
@@ -94,14 +94,14 @@ class _PostCardState extends State<PostCard> {
                       );
                     },
                     child: Padding(
-                      padding: EdgeInsets.only(left: 10),
+                      padding: const EdgeInsets.only(left: 10),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             widget.snap['username'],
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           )
@@ -117,7 +117,7 @@ class _PostCardState extends State<PostCard> {
                       context: context,
                       builder: (context) => Dialog(
                         child: ListView(
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           children: [
                             // Check if the current user is the owner of the post
                             if (user.uid == widget.snap['uid'].toString())
@@ -129,11 +129,11 @@ class _PostCardState extends State<PostCard> {
                                   Navigator.of(context).pop();
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                     vertical: 12,
                                     horizontal: 16,
                                   ),
-                                  child: Text('Delete post'),
+                                  child: const Text('Delete post'),
                                 ),
                               ),
                           ],
@@ -141,7 +141,7 @@ class _PostCardState extends State<PostCard> {
                       ),
                     );
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.more_vert,
                   ),
                 ),
@@ -149,7 +149,7 @@ class _PostCardState extends State<PostCard> {
             ),
           ),
 
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
 
           // IMAGE SECTION
           GestureDetector(
@@ -182,20 +182,21 @@ class _PostCardState extends State<PostCard> {
                 ),
                 AnimatedOpacity(
                   opacity: isLikeAnimating ? 1 : 0,
-                  duration: Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 200),
                   child: LikeAnimation(
-                    child: Icon(
-                      Icons.favorite,
-                      color: Colors.white,
-                      size: 120,
-                    ),
                     isAnimating: isLikeAnimating,
-                    duration: Duration(milliseconds: 400),
+                    
+                    duration: const Duration(milliseconds: 400),
                     onEnd: () {
                       setState(() {
                         isLikeAnimating = false;
                       });
                     },
+                    child: const Icon(
+                      Icons.favorite,
+                      color: Colors.white,
+                      size: 120,
+                    ),
                   ),
                 ),
               ],
@@ -217,11 +218,11 @@ class _PostCardState extends State<PostCard> {
                     );
                   },
                   icon: widget.snap['likes'].contains(user.uid)
-                      ? Icon(
+                      ? const Icon(
                           Icons.favorite,
                           color: Colors.red,
                         )
-                      : Icon(
+                      : const Icon(
                           Icons.favorite_border,
                         ),
                 ),
@@ -236,18 +237,18 @@ class _PostCardState extends State<PostCard> {
                     ),
                   );
                 },
-                icon: Icon(Icons.comment_outlined),
+                icon: const Icon(Icons.comment_outlined),
               ),
               IconButton(
                 onPressed: () {},
-                icon: Icon(Icons.send),
+                icon: const Icon(Icons.send),
               ),
               Expanded(
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: IconButton(
                     onPressed: () {},
-                    icon: Icon(Icons.bookmark_border),
+                    icon: const Icon(Icons.bookmark_border),
                   ),
                 ),
               ),
@@ -256,7 +257,7 @@ class _PostCardState extends State<PostCard> {
 
           // DESCRIPTION AND NUMBER OF COMMENTS
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,13 +284,13 @@ class _PostCardState extends State<PostCard> {
                         );
                       },
                       child: Container(
-                        padding: EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.only(top: 8),
                         child: RichText(
                           text: TextSpan(
                             children: [
                               TextSpan(
                                 text: widget.snap['username'],
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -299,7 +300,7 @@ class _PostCardState extends State<PostCard> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.only(left: 10, top: 8),
+                      padding: const EdgeInsets.only(left: 10, top: 8),
                       child: RichText(
                         text: TextSpan(
                           text: '${widget.snap['description']}',
@@ -315,7 +316,7 @@ class _PostCardState extends State<PostCard> {
                     showModalBottomSheet(
                       context: context,
                       builder: (context) => Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(20),
                             topRight: Radius.circular(20),
@@ -326,10 +327,10 @@ class _PostCardState extends State<PostCard> {
                     );
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
                       'View all $commentLength comments',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         color: secondaryColor,
                       ),
@@ -337,12 +338,12 @@ class _PostCardState extends State<PostCard> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Text(
                     DateFormat.yMMMd().format(
                       widget.snap['datePublished'].toDate(),
                     ),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 15,
                       color: secondaryColor,
                     ),

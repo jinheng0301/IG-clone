@@ -25,6 +25,32 @@ class _CommentScreenState extends State<CommentScreen> {
     _commentController.dispose();
   }
 
+  Future<void> _showDialogBox(String postId, String commentId) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Are you sure want to delete comment?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('No no no, balik balik!'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirestoreMethods().deleteComment(postId, commentId);
+                Navigator.of(context).pop();
+              },
+              child: Text('Conlan7firm!'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final User user = Provider.of<UserProvider>(context).getUser;
@@ -32,9 +58,7 @@ class _CommentScreenState extends State<CommentScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
-        title: Text(
-          'Comment',
-        ),
+        title: const Text('Comment'),
         centerTitle: false,
         // it shows with left align
       ),
@@ -46,26 +70,32 @@ class _CommentScreenState extends State<CommentScreen> {
             .orderBy('datePublished', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
-          print('StreamBuilder Snapshot: ${snapshot}');
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
-          } else {
-            return GestureDetector(
-              child: ListView.builder(
-                itemCount: (snapshot.data as dynamic).docs.length,
-                itemBuilder: (context, index) {
-                  // Without the return statement,
-                  // the CommentCard widgets are not being returned, and as a result,
-                  // they are not being displayed on the screen.
-                  return CommentCard(
-                    snap: (snapshot.data as dynamic).docs[index].data(),
-                  );
-                },
-              ),
-            );
           }
+
+          return GestureDetector(
+            child: ListView.builder(
+              itemCount: (snapshot.data as dynamic).docs.length,
+              itemBuilder: (context, index) {
+                // Without the return statement,
+                // the CommentCard widgets are not being returned, and as a result,
+                // they are not being displayed on the screen.
+                return GestureDetector(
+                  onTap: () => _showDialogBox(
+                    widget.snap['postId'],
+                    widget.snap!['commentId'] ?? '',
+                  ),
+                  child: CommentCard(
+                    snap: (snapshot.data as dynamic).docs[index].data(),
+                    postId: widget.snap['postId'],
+                  ),
+                );
+              },
+            ),
+          );
         },
       ),
       bottomNavigationBar: SafeArea(
@@ -74,13 +104,11 @@ class _CommentScreenState extends State<CommentScreen> {
           margin: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          padding: EdgeInsets.only(left: 16, right: 8),
+          padding: const EdgeInsets.only(left: 16, right: 8),
           child: Row(
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(
-                  '',
-                ),
+                backgroundImage: NetworkImage(user.photoUrl),
                 radius: 18,
               ),
               Expanded(
@@ -109,12 +137,11 @@ class _CommentScreenState extends State<CommentScreen> {
                   });
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                  child: Text(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  child: const Text(
                     'Post',
-                    style: TextStyle(
-                      color: blueColor,
-                    ),
+                    style: TextStyle(color: blueColor),
                   ),
                 ),
               ),

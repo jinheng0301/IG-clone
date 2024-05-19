@@ -90,6 +90,7 @@ class FirestoreMethods {
           'text': text,
           'commentId': commentId,
           'datePublished': DateTime.now(),
+          'likes': [], // initialize likes as an empty list
         });
       } else {
         print('Text is empty');
@@ -107,24 +108,20 @@ class FirestoreMethods {
     List likes,
   ) async {
     try {
+      final commentRef = _firestore
+          .collection('posts')
+          .doc(postId)
+          .collection('comments')
+          .doc(commentId);
+
       if (likes.contains(uid)) {
         // If the user already liked the comment in the past, remove the like
-        await _firestore
-            .collection('posts')
-            .doc(postId)
-            .collection('comments')
-            .doc(commentId)
-            .update({
+        await commentRef.update({
           'likes': FieldValue.arrayRemove([uid])
         });
       } else {
         // If the user hasn't liked the comment yet, add the like
-        await _firestore
-            .collection('posts')
-            .doc(postId)
-            .collection('comments')
-            .doc(commentId)
-            .update({
+        await commentRef.update({
           'likes': FieldValue.arrayUnion([uid])
         });
       }

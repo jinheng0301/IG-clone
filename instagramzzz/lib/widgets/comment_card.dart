@@ -7,7 +7,12 @@ import 'package:provider/provider.dart';
 
 class CommentCard extends StatefulWidget {
   final snap;
-  CommentCard({required this.snap});
+  final String postId;
+  
+  CommentCard({
+    required this.snap,
+    required this.postId,
+  });
 
   @override
   State<CommentCard> createState() => _CommentCardState();
@@ -96,25 +101,33 @@ class _CommentCardState extends State<CommentCard> {
             ),
           ),
 
-          //TODO: implement like function
+          // Implement like function
           GestureDetector(
             onTap: () async {
-              await FirestoreMethods()
-                  .likeComment(postId, commentId, uid, likes);
+              await FirestoreMethods().likeComment(
+                postId,
+                commentId,
+                uid,
+                likes,
+              );
             },
             child: Container(
               padding: EdgeInsets.all(8),
               child: Column(
                 children: [
-                  Icon(
-                    Icons.favorite,
-                    size: 20,
-                    color: widget.snap['likes'].contains(user.uid)
-                        ? Colors.red
-                        : Colors.white,
-                  ),
+                  likes.contains(user.uid)
+                      ? Icon(
+                          Icons.favorite,
+                          size: 20,
+                          color: Colors.red,
+                        )
+                      : Icon(
+                          Icons.favorite_outline,
+                          size: 20,
+                          color: Colors.white,
+                        ),
                   Text(
-                    '1 likes',
+                    '${likes.length} likes',
                     style: TextStyle(
                       fontSize: 11,
                     ),
