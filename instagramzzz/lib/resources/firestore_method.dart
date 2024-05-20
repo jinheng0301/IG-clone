@@ -90,7 +90,9 @@ class FirestoreMethods {
           'text': text,
           'commentId': commentId,
           'datePublished': DateTime.now(),
-          'likes': [], // initialize likes as an empty list
+          'likes': [],
+          // initialize likes as an empty list first then we can store like count in firebase
+          // just like the likePost function.
         });
       } else {
         print('Text is empty');
@@ -126,8 +128,7 @@ class FirestoreMethods {
         });
       }
     } catch (e) {
-      print('Error liking comment: $e');
-      // Optionally, you can handle the error or throw it again based on your requirements
+      print('Error liking comment: ${e.toString()}');
     }
   }
 
@@ -141,8 +142,7 @@ class FirestoreMethods {
           .doc(commentId)
           .delete();
     } catch (e) {
-      print('Error deleting comment: $e');
-      // Optionally, you can handle the error or throw it again based on your requirements
+      print('Error deleting comment: ${e.toString()}');
     }
   }
 

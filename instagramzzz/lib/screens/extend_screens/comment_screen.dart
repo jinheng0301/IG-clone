@@ -25,20 +25,35 @@ class _CommentScreenState extends State<CommentScreen> {
     _commentController.dispose();
   }
 
-  Future<void> _showDialogBox(String postId, String commentId) async {
+  Future<void> _showDialogBox(
+    String postId,
+    String commentId,
+    bool isOwnerAcc,
+  ) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Are you sure want to delete comment?'),
+          title: Text(
+            isOwnerAcc
+                ? 'Are you sure want to delete comment?'
+                : 'Delete comment only available to current user.',
+          ),
           actions: [
-            TextButton(
-              onPressed: () async {
-                await FirestoreMethods().deleteComment(postId, commentId);
-                Navigator.of(context).pop();
-              },
-              child: Text('Conlan7firm!'),
-            ),
+            isOwnerAcc
+                ? TextButton(
+                    onPressed: () async {
+                      await FirestoreMethods().deleteComment(postId, commentId);
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Conlan7firm!'),
+                  )
+                : TextButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  )
           ],
         );
       },
@@ -70,29 +85,30 @@ class _CommentScreenState extends State<CommentScreen> {
             );
           }
 
-          return GestureDetector(
-            child: ListView.builder(
-              itemCount: (snapshot.data as dynamic).docs.length,
-              itemBuilder: (context, index) {
-                var commentSnap = (snapshot.data as dynamic).docs[index];
-                var commentData = commentSnap.data();
-                String commentId = commentSnap.id;
+          return ListView.builder(
+            itemCount: (snapshot.data as dynamic).docs.length,
+            itemBuilder: (context, index) {
+              var commentSnap = (snapshot.data as dynamic).docs[index];
+              var commentData = commentSnap.data();
+              String commentId = commentSnap.id;
 
-                return GestureDetector(
-                  onLongPress: () => _showDialogBox(
+              return GestureDetector(
+                onLongPress: () {
+                  _showDialogBox(
                     widget.snap['postId'],
                     commentId,
-                  ),
-                  // Without the return statement,
-                  // the CommentCard widgets are not being returned, and as a result,
-                  // they are not being displayed on the screen.
-                  child: CommentCard(
-                    snap: commentData,
-                    postId: widget.snap['postId'],
-                  ),
-                );
-              },
-            ),
+                    commentData['uid'] == user.uid,
+                  );
+                },
+                // Without the return statement,
+                // the CommentCard widgets are not being returned, and as a result,
+                // they are not being displayed on the screen.
+                child: CommentCard(
+                  snap: commentData,
+                  postId: widget.snap['postId'],
+                ),
+              );
+            },
           );
         },
       ),

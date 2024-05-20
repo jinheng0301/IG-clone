@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
@@ -31,6 +32,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isFollowing = false;
   bool isLoading = false;
   bool isUser = false;
+  bool showPost1 = false;
+  bool showPost2 = false;
+  bool showPost3 = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+    showProfilePost();
+  }
 
   // since we have three column widgets in the profile screen
   Column buildStatColumn(int num, String label) {
@@ -40,16 +52,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         Text(
           num.toString(),
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
         Container(
-          margin: EdgeInsets.only(top: 4),
+          margin: const EdgeInsets.only(top: 4),
           child: Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w400,
               color: Colors.grey,
@@ -60,11 +72,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getData();
+  FutureBuilder<QuerySnapshot<Map<String, dynamic>>> showProfilePost() {
+    print("showProfilePost is called");
+    return FutureBuilder(
+      future: FirebaseFirestore.instance
+          .collection('posts')
+          .where('uid', isEqualTo: widget.uid)
+          .get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          return GridView.builder(
+            shrinkWrap: true,
+            itemCount: (snapshot.data as dynamic)?.docs?.length ?? 0,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 5,
+              mainAxisSpacing: 1.5,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, index) {
+              DocumentSnapshot snap = (snapshot.data! as dynamic).docs[index];
+
+              // Check if the 'posturl' field is not null before creating NetworkImage
+              if ((snap.data()! as dynamic)['postUrl'] != null) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfilePostScreen(
+                          userUid: widget.uid,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Image(
+                    image: NetworkImage(
+                      (snap.data()! as dynamic)['postUrl'].toString(),
+                    ),
+                    fit: BoxFit.cover,
+                  ),
+                );
+              } else {
+                // Handle the case where 'posturl' is null (you can show a placeholder)
+                return const Text('No image available');
+              }
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Container reelsSaved() {
+    return Container(
+      child: const Text('reels by owner'),
+    );
+  }
+
+  Container photoTagged() {
+    return Container(
+      child: const Text('photo tagged area'),
+    );
   }
 
   void getData() async {
@@ -112,24 +185,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Log out mou?'),
+          title: const Text('Log out mou?'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('No no no, balik balik!'),
+              child: const Text('No no no, balik balik!'),
             ),
             TextButton(
               onPressed: () async {
                 await AuthMethods().logOut();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
-                    builder: (context) => LoginScreen(),
+                    builder: (context) => const LoginScreen(),
                   ),
                 );
               },
-              child: Text('Conlan7firm!'),
+              child: const Text('Conlan7firm!'),
             ),
           ],
         );
@@ -151,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               backgroundColor: mobileBackgroundColor,
               title: Text(
                 userData['username'] ?? 'Username not available',
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -165,11 +238,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => AddPostScreen(),
+                                builder: (context) => const AddPostScreen(),
                               ),
                             );
                           },
-                          child: Icon(Icons.add_circle_outline_outlined),
+                          child: const Icon(Icons.add_circle_outline_outlined),
                         )
                       : GestureDetector(
                           onTap: () {
@@ -183,15 +256,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        margin: EdgeInsets.all(8),
-                                        padding: EdgeInsets.all(8),
+                                        margin: const EdgeInsets.all(8),
+                                        padding: const EdgeInsets.all(8),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
                                               userData['username'],
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -199,13 +272,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ],
                                         ),
                                       ),
-                                      Divider(),
+                                      const Divider(),
                                       GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text(
                                             'Posts',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -216,9 +289,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text(
                                             'Stories',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -229,9 +302,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text(
                                             'Reels',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -242,9 +315,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text(
                                             'Goes live',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -256,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         padding: const EdgeInsets.all(10),
                                         child: Text(
                                           'Get notifications when ${userData['username']} shares photos, videos or broadcast channels.',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontWeight: FontWeight.w100,
                                           ),
                                         ),
@@ -267,7 +340,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               },
                             );
                           },
-                          child: Icon(Icons.notification_add),
+                          child: const Icon(Icons.notification_add),
                         ),
                 ),
                 IconButton(
@@ -286,9 +359,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.settings),
                                               SizedBox(width: 15),
@@ -300,9 +373,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Report...'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text('Report...'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -310,9 +383,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.social_distance),
                                               SizedBox(width: 15),
@@ -324,9 +397,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Block'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text('Block'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -334,9 +407,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.local_activity),
                                               SizedBox(width: 15),
@@ -348,9 +421,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('About This Account'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child:
+                                              const Text('About This Account'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -358,9 +432,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.archive),
                                               SizedBox(width: 15),
@@ -372,9 +446,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Restrict'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text('Restrict'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -382,9 +456,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.qr_code),
                                               SizedBox(width: 15),
@@ -399,9 +473,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.bookmark),
                                               SizedBox(width: 15),
@@ -413,9 +487,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Restrict'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text('Restrict'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -423,9 +497,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.people),
                                               SizedBox(width: 15),
@@ -437,9 +511,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Restrict'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text('Restrict'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -447,9 +521,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.credit_card),
                                               SizedBox(width: 15),
@@ -461,9 +535,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('See shared activity'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child:
+                                              const Text('See shared activity'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -471,9 +546,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.verified),
                                               SizedBox(width: 15),
@@ -485,9 +560,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Hide your story'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text('Hide your story'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -495,9 +570,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.closed_caption),
                                               SizedBox(width: 15),
@@ -509,9 +584,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Remove follower'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text('Remove follower'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -519,9 +594,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.star_outline),
                                               SizedBox(width: 15),
@@ -533,9 +608,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Copy Profile URL'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text('Copy Profile URL'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -544,9 +619,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Show QR code'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child: const Text('Show QR code'),
                                         ),
                                       ),
                                 FirebaseAuth.instance.currentUser!.uid ==
@@ -555,9 +630,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : GestureDetector(
                                         onTap: () {},
                                         child: Container(
-                                          margin: EdgeInsets.all(6),
-                                          padding: EdgeInsets.all(12),
-                                          child: Text('Share this profile'),
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(12),
+                                          child:
+                                              const Text('Share this profile'),
                                         ),
                                       ),
                               ],
@@ -568,8 +644,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   },
                   icon: FirebaseAuth.instance.currentUser!.uid == widget.uid
-                      ? Icon(Icons.more_horiz_outlined)
-                      : Icon(Icons.more_vert),
+                      ? const Icon(Icons.more_horiz_outlined)
+                      : const Icon(Icons.more_vert),
                 ),
               ],
             ),
@@ -636,17 +712,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.only(top: 10),
+                        padding: const EdgeInsets.only(top: 10),
                         child: Text(
                           userData['username'] ?? 'Username not available',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           userData['bio'] ?? 'Bio not available',
                         ),
@@ -681,8 +757,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Container(
-                                                    margin: EdgeInsets.all(8),
-                                                    padding: EdgeInsets.all(8),
+                                                    margin:
+                                                        const EdgeInsets.all(8),
+                                                    padding:
+                                                        const EdgeInsets.all(8),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -690,7 +768,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       children: [
                                                         Text(
                                                           userData['username'],
-                                                          style: TextStyle(
+                                                          style:
+                                                              const TextStyle(
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                             fontSize: 28,
@@ -699,14 +778,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       ],
                                                     ),
                                                   ),
-                                                  Divider(),
+                                                  const Divider(),
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin: EdgeInsets.all(8),
+                                                      margin: const EdgeInsets.all(8),
                                                       padding:
-                                                          EdgeInsets.all(15),
-                                                      child: Text(
+                                                          const EdgeInsets.all(15),
+                                                      child: const Text(
                                                         'Add to close friend list',
                                                         style: TextStyle(
                                                           fontWeight:
@@ -718,10 +797,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin: EdgeInsets.all(8),
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       padding:
-                                                          EdgeInsets.all(15),
-                                                      child: Text(
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      child: const Text(
                                                         'Mute',
                                                         style: TextStyle(
                                                           fontWeight:
@@ -733,10 +815,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin: EdgeInsets.all(8),
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       padding:
-                                                          EdgeInsets.all(15),
-                                                      child: Text(
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      child: const Text(
                                                         'Restrict',
                                                         style: TextStyle(
                                                           fontWeight:
@@ -762,10 +847,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       // dismiss the modal bottom sheet after unfollow button is tapped
                                                     },
                                                     child: Container(
-                                                      margin: EdgeInsets.all(8),
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       padding:
-                                                          EdgeInsets.all(15),
-                                                      child: Text(
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      child: const Text(
                                                         'Unfollow',
                                                         style: TextStyle(
                                                           fontWeight:
@@ -829,72 +917,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
 
-                      Divider(),
+                      const Divider(),
 
                       // show the post in profile screen
-                      FutureBuilder(
-                        future: FirebaseFirestore.instance
-                            .collection('posts')
-                            .where('uid', isEqualTo: widget.uid)
-                            .get(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else {
-                            return GridView.builder(
-                              shrinkWrap: true,
-                              itemCount:
-                                  (snapshot.data as dynamic)?.docs?.length ?? 0,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing: 1.5,
-                                childAspectRatio: 1,
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Container(
+                                margin:
+                                    const EdgeInsets.only(top: 10, bottom: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: IconButton(
+                                  icon: const Icon(Icons.grid_on),
+                                  onPressed: () {
+                                    setState(() {
+                                      print('first button pressed');
+                                      showPost1 = true;
+                                    });
+                                  },
+                                ),
                               ),
-                              itemBuilder: (context, index) {
-                                DocumentSnapshot snap =
-                                    (snapshot.data! as dynamic).docs[index];
+                              Container(
+                                margin:
+                                    const EdgeInsets.only(top: 10, bottom: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: IconButton(
+                                  icon: const Icon(Icons.tiktok),
+                                  onPressed: () {
+                                    setState(() {
+                                      print("second button pressed");
+                                      showPost2 = true;
+                                    });
+                                  },
+                                ),
+                              ),
+                              Container(
+                                margin:
+                                    const EdgeInsets.only(top: 10, bottom: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: IconButton(
+                                  icon: const Icon(Icons.tag_faces_rounded),
+                                  onPressed: () {
+                                    setState(() {
+                                      print("third button pressed");
+                                      showPost3 = true;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
 
-                                // Check if the 'posturl' field is not null before creating NetworkImage
-                                if ((snap.data()! as dynamic)['postUrl'] !=
-                                    null) {
-                                  return Container(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProfilePostScreen(
-                                              userUid: widget.uid,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Image(
-                                        image: NetworkImage(
-                                          (snap.data()! as dynamic)['postUrl']
-                                              .toString(),
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  // Handle the case where 'posturl' is null (you can show a placeholder)
-                                  return Container(
-                                    // Your placeholder widget or text here
-                                    child: Text('No image available'),
-                                  );
-                                }
-                              },
-                            );
-                          }
-                        },
+                          const Divider(),
+
+                          // to test the show profile post function
+                          showPost1
+                              ? showProfilePost()
+                              : showPost2
+                                  ? reelsSaved()
+                                  : showPost3
+                                      ? photoTagged()
+                                      : Container(),
+                        ],
                       ),
                     ],
                   ),
