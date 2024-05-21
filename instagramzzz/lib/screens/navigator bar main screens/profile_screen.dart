@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
-import 'package:instagramzzz/screens/extend_screens/follow_screen.dart';
+import 'package:instagramzzz/screens/extend_screens/follower_screen.dart';
+import 'package:instagramzzz/screens/extend_screens/following_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/message_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/profile_post_screen.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/add_post_screen.dart';
@@ -81,8 +81,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Center(
+            child: LoadingAnimationWidget.hexagonDots(
+              color: Colors.yellow,
+              size: 40,
+            ),
           );
         } else {
           return GridView.builder(
@@ -679,7 +682,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                FollowScreen(),
+                                                FollowerScreen(),
                                           ),
                                         );
                                       },
@@ -694,7 +697,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                FollowScreen(),
+                                                FollowingScreen(
+                                              uid: FirebaseAuth
+                                                  .instance.currentUser!.uid,
+                                            ),
                                           ),
                                         );
                                       },
@@ -782,9 +788,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin: const EdgeInsets.all(8),
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       padding:
-                                                          const EdgeInsets.all(15),
+                                                          const EdgeInsets.all(
+                                                              15),
                                                       child: const Text(
                                                         'Add to close friend list',
                                                         style: TextStyle(
@@ -894,6 +903,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   backgroundColor: mobileBackgroundColor,
                                   textColor: primaryColor,
                                   borderColor: Colors.grey,
+                                  function: null,
                                 )
                               : MessageOrShareProfileButton(
                                   text: 'Message',
@@ -913,6 +923,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             backgroundColor: mobileBackgroundColor,
                             borderColor: Colors.grey,
                             iconColor: Colors.white,
+                            function: null,
                           ),
                         ],
                       ),

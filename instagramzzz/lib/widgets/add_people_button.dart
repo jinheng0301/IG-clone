@@ -4,11 +4,13 @@ class AddPeopleButton extends StatelessWidget {
   late final Color backgroundColor;
   late final Color borderColor;
   late final Color iconColor;
+  final Function()? function;
 
   AddPeopleButton({
     required this.backgroundColor,
     required this.borderColor,
     required this.iconColor,
+    this.function,
   });
 
   @override
@@ -18,20 +20,21 @@ class AddPeopleButton extends StatelessWidget {
       height: 50,
       padding: EdgeInsets.only(top: 2),
       child: TextButton(
-        onPressed: () {},
+        onPressed: function,
         child: Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              border: Border.all(
-                color: borderColor,
-              ),
-              borderRadius: BorderRadius.circular(8),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border.all(
+              color: borderColor,
             ),
-            child: Icon(
-              Icons.add,
-              color: iconColor,
-            )),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            Icons.add,
+            color: iconColor,
+          ),
+        ),
       ),
     );
   }

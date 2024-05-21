@@ -29,7 +29,7 @@ class _SearchScreenState extends State<SearchScreen> {
         backgroundColor: mobileBackgroundColor,
         title: TextFormField(
           controller: searchController,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Search for a user',
           ),
           onFieldSubmitted: (String _) {
@@ -51,7 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   // if snapshot has no data
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 }
@@ -96,7 +96,7 @@ class _SearchScreenState extends State<SearchScreen> {
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   // if snapshot has no data
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 }
