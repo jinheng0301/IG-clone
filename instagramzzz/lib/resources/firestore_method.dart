@@ -187,4 +187,71 @@ class FirestoreMethods {
       print(e.toString());
     }
   }
+
+  // remove user from follow screen
+  Future<void> isFollowedByOtherUser(String uid, String followId) async {
+    try {
+      DocumentSnapshot snap =
+          await _firestore.collection('users').doc(uid).get();
+      List followers = (snap.data()! as dynamic)['followers'];
+
+      if (followers.contains(followId)) {
+        await _firestore.collection('users').doc(followId).update({
+          'following': FieldValue.arrayRemove([uid]),
+        });
+
+        await _firestore.collection('users').doc(uid).update({
+          'followers': FieldValue.arrayRemove([followId]),
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> deleteAccount(String uid) async {
+    try {
+      // Get user's document reference
+      DocumentReference userRef = _firestore.collection('users').doc(uid);
+
+      // Get all posts by the user
+      QuerySnapshot postSnapshot = await _firestore
+          .collection('posts')
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      // Delete all posts by the user
+      for (var doc in postSnapshot.docs) {
+        await _firestore.collection('posts').doc(doc.id).delete();
+      }
+
+      // Get all comments made by the user
+      QuerySnapshot commentSnapshot = await _firestore
+          .collectionGroup('comments')
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      // Delete all comments made by the user
+      for (var doc in commentSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Remove the user from followers/following lists
+      QuerySnapshot userSnapshot = await _firestore.collection('users').get();
+      for (var doc in userSnapshot.docs) {
+        if (doc.id != uid) {
+          await _firestore.collection('users').doc(doc.id).update({
+            'followers': FieldValue.arrayRemove([uid]),
+            'following': FieldValue.arrayRemove([uid]),
+          });
+        }
+      }
+
+      // Finally, delete the user's document
+      await userRef.delete();
+      print("User and related data removed successfully.");
+    } catch (e) {
+      print('Unable to remove user: ${e.toString()}');
+    }
+  }
 }

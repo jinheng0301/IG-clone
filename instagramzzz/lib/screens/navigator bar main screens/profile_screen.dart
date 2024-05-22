@@ -682,7 +682,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                FollowerScreen(),
+                                                FollowerScreen(
+                                              uid: FirebaseAuth
+                                                  .instance.currentUser!.uid,
+                                            ),
                                           ),
                                         );
                                       },
