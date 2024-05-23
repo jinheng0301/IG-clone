@@ -108,7 +108,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => ProfilePostScreen(
-                          userUid: widget.uid,
+                          uid: widget.uid,
+                          postId: snap.id,
+                          initialIndex: index,
                         ),
                       ),
                     );

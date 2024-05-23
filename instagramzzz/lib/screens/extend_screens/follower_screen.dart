@@ -93,7 +93,10 @@ class _FollowerScreenState extends State<FollowerScreen> {
               ),
             ),
           ),
+
           Divider(),
+
+          // Show all followed users
           Text(
             'All followers',
             style: TextStyle(fontSize: 20),
