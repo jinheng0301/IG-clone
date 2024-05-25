@@ -18,12 +18,10 @@ class FollowerScreen extends StatefulWidget {
 
 class _FollowerScreenState extends State<FollowerScreen> {
   TextEditingController searchController = TextEditingController();
+  List<Map<String, dynamic>> followerList = [];
+  List<Map<String, dynamic>> filteredFollowerList = [];
   var userData = {};
-  int follower = 0;
-  List<String> followerList = [];
-  List<String> filteredFollowerList = [];
   bool isLoading = false;
-  bool isFollowed = false;
 
   @override
   void initState() {
@@ -32,6 +30,12 @@ class _FollowerScreenState extends State<FollowerScreen> {
     searchController.addListener(() {
       filterFollowerList(searchController.text);
     });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   void getData() async {
@@ -47,12 +51,26 @@ class _FollowerScreenState extends State<FollowerScreen> {
 
       if (userSnap.exists) {
         userData = userSnap.data()!;
+        List<dynamic> followers = userSnap.data()!['followers'];
+        List<Map<String, dynamic>> tempFollowerList = [];
 
-        // Get the follower list
-        followerList = List<String>.from(userSnap.data()!['followers']);
-        filteredFollowerList = followerList;
+        for (String uid in followers) {
+          DocumentSnapshot userSnap = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .get();
+          if (userSnap.exists) {
+            Map<String, dynamic> userData =
+                userSnap.data() as Map<String, dynamic>;
+            tempFollowerList.add(userData);
+          }
+        }
+
+        setState(() {
+          followerList = tempFollowerList;
+          filteredFollowerList = followerList;
+        });
       } else {
-        // Handle the case when the document does not exist
         showSnackBar('User not found', context);
       }
     } catch (e) {
@@ -64,14 +82,26 @@ class _FollowerScreenState extends State<FollowerScreen> {
     });
   }
 
-  void filterFollowerList(String query){
-    List<String> filteredList = followerList.where((uid) {
-      return uid.toLowerCase().contains(query.toLowerCase());
+  void filterFollowerList(String query) {
+    List<Map<String, dynamic>> filteredList = followerList.where((user) {
+      return user['username'].toLowerCase().contains(query.toLowerCase());
     }).toList();
 
     setState(() {
       filteredFollowerList = filteredList;
     });
+  }
+
+  void removeFollower(String uid) async {
+    setState(() {
+      followerList.removeWhere((user) => user['uid'] == uid);
+      filteredFollowerList = List.from(followerList);
+    });
+
+    await FirestoreMethods().isFollowedByOtherUser(
+      FirebaseAuth.instance.currentUser!.uid,
+      uid,
+    );
   }
 
   @override
@@ -96,106 +126,69 @@ class _FollowerScreenState extends State<FollowerScreen> {
 
           Divider(),
 
-          // Show all followed users
-          Text(
-            'All followers',
-            style: TextStyle(fontSize: 20),
-          ),
-          SizedBox(height: 10),
+          // Show all follower accounts
           Expanded(
             child: isLoading
                 ? Center(
-                    child: LoadingAnimationWidget.hexagonDots(
-                      color: Colors.yellow,
+                    child: LoadingAnimationWidget.inkDrop(
+                      color: Colors.red,
                       size: 40,
                     ),
                   )
                 : ListView.builder(
                     itemCount: filteredFollowerList.length,
-                    itemBuilder: ((context, index) {
-                      return FutureBuilder(
-                        future: FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(filteredFollowerList[index])
-                            .get(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData || !snapshot.data!.exists) {
-                            return Center(
-                              child: LoadingAnimationWidget.bouncingBall(
-                                color: Colors.yellow,
-                                size: 40,
-                              ),
-                            );
-                          }
+                    itemBuilder: (context, index) {
+                      var user = filteredFollowerList[index];
+                      var uid = user['uid'];
+                      var photoUrl = user['photoUrl'];
+                      var username = user['username'];
 
-                          var userData = snapshot.data!.data()!;
-                          var uid = userData['uid'];
-                          var photoUrl = userData['photoUrl'];
-                          var username = userData['username'];
-                          bool isFollowed = followerList.contains(uid);
-
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ProfileScreen(uid: uid),
-                                ),
-                              );
-                            },
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(photoUrl),
-                              ),
-                              title: Text(username),
-                              trailing: FollowButton2(
-                                text: isFollowed ? 'Remove' : '',
-                                backgroundColor: mobileBackgroundColor,
-                                borderColor: secondaryColor,
-                                textColor: primaryColor,
-                                function: () {
-                                  return showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('Remove follower?'),
-                                        content: Text(
-                                          'We won`t tell ${userData['username']} that they were removed from your followers.',
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () async {
-                                              await FirestoreMethods()
-                                                  .isFollowedByOtherUser(
-                                                FirebaseAuth
-                                                    .instance.currentUser!.uid,
-                                                uid,
-                                              );
-                                              setState(() {
-                                                followerList.remove(uid);
-                                                filteredFollowerList =
-                                                    List.from(followerList);
-                                                follower--;
-                                              });
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text(
-                                              'Remove',
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ProfileScreen(uid: uid),
                             ),
                           );
                         },
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(photoUrl),
+                          ),
+                          title: Text(username),
+                          trailing: FollowButton2(
+                            text: 'Remove',
+                            backgroundColor: mobileBackgroundColor,
+                            borderColor: secondaryColor,
+                            textColor: primaryColor,
+                            function: () {
+                              return showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Remove follower?'),
+                                    content: Text(
+                                        'We won\'t tell ${username} that they were removed from your followers.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          removeFollower(uid);
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text(
+                                          'Remove',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
                       );
-                    }),
+                    },
                   ),
           ),
         ],

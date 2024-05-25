@@ -80,7 +80,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .where('uid', isEqualTo: widget.uid)
           .get(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.none) {
+          return const Center(
+            child: Text('No images to show.'),
+          );
+        } else if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: LoadingAnimationWidget.hexagonDots(
               color: Colors.yellow,

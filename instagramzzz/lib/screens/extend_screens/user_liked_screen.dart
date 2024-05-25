@@ -1,75 +1,74 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
-import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
-import 'package:instagramzzz/widgets/follow_button2.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:instagramzzz/widgets/follow_button2.dart';
 
-class FollowingScreen extends StatefulWidget {
+import '../navigator bar main screens/profile_screen.dart';
+
+class UserLikedScreen extends StatefulWidget {
+  final String postId;
   final String uid;
-  FollowingScreen({required this.uid});
+  UserLikedScreen({required this.postId, required this.uid});
 
   @override
-  State<FollowingScreen> createState() => _FollowingScreenState();
+  _UserLikedScreenState createState() => _UserLikedScreenState();
 }
 
-class _FollowingScreenState extends State<FollowingScreen> {
+class _UserLikedScreenState extends State<UserLikedScreen> {
   TextEditingController searchController = TextEditingController();
-  var userData = {};
-  List<Map<String, dynamic>> followingList = [];
-  List<Map<String, dynamic>> filteredFollowingList = [];
-  String currentUserId = FirebaseAuth.instance.currentUser!.uid;
   bool isLoading = false;
+  String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+  List<Map<String, dynamic>> userLikeList = [];
+  List<Map<String, dynamic>> filteredUserLikeList = [];
 
   @override
   void initState() {
     super.initState();
-    getData();
+    getLikeData();
     searchController.addListener(() {
-      filterFollowingList(searchController.text);
+      filterUserLikeList(searchController.text);
     });
   }
 
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
-
-  void getData() async {
+  void getLikeData() async {
     setState(() {
       isLoading = true;
     });
 
     try {
-      var userSnap = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.uid)
+      DocumentSnapshot postSnap = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.postId)
           .get();
-      userData = userSnap.data()!;
 
-      // Get the following List
-      List<dynamic> following = userSnap.data()!['following'];
-      List<Map<String, dynamic>> tempFollowingList = [];
+      if (postSnap.exists) {
+        List<dynamic> likes = postSnap['likes'];
+        List<Map<String, dynamic>> tempUserLikeList = [];
 
-      for (String uid in following) {
-        DocumentSnapshot userSnap =
-            await FirebaseFirestore.instance.collection('users').doc(uid).get();
-        if (userSnap.exists) {
-          Map<String, dynamic> userData =
-              userSnap.data() as Map<String, dynamic>;
-          userData['isFollowing'] = await checkIfFollowing(uid);
-          tempFollowingList.add(userData);
+        for (String uid in likes) {
+          DocumentSnapshot userSnap = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .get();
+          if (userSnap.exists) {
+            Map<String, dynamic> userData =
+                userSnap.data() as Map<String, dynamic>;
+            userData['isFollowing'] = await checkIfFollowing(uid);
+            tempUserLikeList.add(userData);
+          }
         }
-      }
 
-      setState(() {
-        followingList = tempFollowingList;
-        filteredFollowingList = followingList;
-      });
+        setState(() {
+          userLikeList = tempUserLikeList;
+          filteredUserLikeList = userLikeList;
+        });
+      } else {
+        showSnackBar('Post not found', context);
+      }
     } catch (e) {
       showSnackBar(e.toString(), context);
     }
@@ -82,49 +81,55 @@ class _FollowingScreenState extends State<FollowingScreen> {
   Future<bool> checkIfFollowing(String uid) async {
     var following = await FirebaseFirestore.instance
         .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .doc(currentUserId)
         .get();
     List<dynamic> followingList = following['following'];
     return followingList.contains(uid);
   }
 
-  void filterFollowingList(String query) {
-    List<Map<String, dynamic>> filteredList = followingList.where((user) {
+  void filterUserLikeList(String query) {
+    List<Map<String, dynamic>> filteredList = userLikeList.where((user) {
       return user['username'].toLowerCase().contains(query.toLowerCase());
     }).toList();
 
     setState(() {
-      filteredFollowingList = filteredList;
+      filteredUserLikeList = filteredList;
     });
   }
 
-  void toggleFollow(String userId, bool isFollowing) async {
-    setState(() {
-      for (var user in followingList) {
-        if (user['uid'] == userId) {
-          user['isFollowing'] = !isFollowing;
-          break;
-        }
-      }
-      filteredFollowingList = followingList.where((user) {
-        return user['username']
-            .toLowerCase()
-            .contains(searchController.text.toLowerCase());
-      }).toList();
-    });
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
+  void toggleFollow(String userId, bool isFollowing) async {
     if (isFollowing) {
       await FirestoreMethods().followUser(currentUserId, userId);
     } else {
       await FirestoreMethods().followUser(currentUserId, userId);
     }
+
+    setState(() {
+      userLikeList = userLikeList.map((user) {
+        if (user['uid'] == userId) {
+          user['isFollowing'] = !isFollowing;
+        }
+        return user;
+      }).toList();
+      filteredUserLikeList = userLikeList.where((user) {
+        return user['username'].toLowerCase().contains(
+              searchController.text.toLowerCase(),
+            );
+      }).toList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(userData['username'] ?? 'Username not available'),
+        title: Text('Likes'),
       ),
       body: Column(
         children: [
@@ -137,32 +142,32 @@ class _FollowingScreenState extends State<FollowingScreen> {
                 hintText: 'Search',
                 enabledBorder: UnderlineInputBorder(),
               ),
-              onChanged: (value) => filterFollowingList(value),
             ),
           ),
 
           Divider(),
 
-          // Show all following account
+          // Show all the liked accounts
           Expanded(
             child: isLoading
                 ? Center(
-                    child: LoadingAnimationWidget.inkDrop(
-                      color: Colors.red,
+                    child: LoadingAnimationWidget.hexagonDots(
+                      color: Colors.yellow,
                       size: 40,
                     ),
                   )
                 : ListView.builder(
-                    itemCount: filteredFollowingList.length,
+                    itemCount: filteredUserLikeList.length,
                     itemBuilder: (context, index) {
-                      var user = filteredFollowingList[index];
+                      var user = filteredUserLikeList[index];
 
                       return GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  ProfileScreen(uid: user['uid']),
+                              builder: (context) => ProfileScreen(
+                                uid: user['uid'],
+                              ),
                             ),
                           );
                         },
@@ -192,7 +197,7 @@ class _FollowingScreenState extends State<FollowingScreen> {
                                     );
                                   },
                                 )
-                              : Container(),
+                              : null,
                         ),
                       );
                     },

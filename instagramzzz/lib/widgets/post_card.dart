@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:instagramzzz/models/user.dart';
+import 'package:instagramzzz/models/user.dart' as model;
 import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/screens/extend_screens/comment_screen.dart';
+import 'package:instagramzzz/screens/extend_screens/user_liked_screen.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
@@ -50,7 +52,7 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
-    final User user = Provider.of<UserProvider>(context).getUser;
+    final model.User user = Provider.of<UserProvider>(context).getUser;
     final width = MediaQuery.of(context).size.width;
 
     return Container(
@@ -185,7 +187,6 @@ class _PostCardState extends State<PostCard> {
                   duration: const Duration(milliseconds: 200),
                   child: LikeAnimation(
                     isAnimating: isLikeAnimating,
-                    
                     duration: const Duration(milliseconds: 400),
                     onEnd: () {
                       setState(() {
@@ -262,13 +263,26 @@ class _PostCardState extends State<PostCard> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DefaultTextStyle(
-                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                        fontWeight: FontWeight.w800,
+                InkWell(
+                  // TODO: show like account
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => UserLikedScreen(
+                          postId: widget.snap['postId'],
+                          uid: FirebaseAuth.instance.currentUser!.uid,
+                        ),
                       ),
-                  child: Text(
-                    '${widget.snap['likes'].length} likes',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    );
+                  },
+                  child: DefaultTextStyle(
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                    child: Text(
+                      '${widget.snap['likes'].length} likes',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
                 ),
                 Row(
