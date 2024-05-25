@@ -138,12 +138,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Container reelsSaved() {
+    print('reelsSaved function is called.');
     return Container(
       child: const Text('reels by owner'),
     );
   }
 
   Container photoTagged() {
+    print('photoTagged function is called.');
     return Container(
       child: const Text('photo tagged area'),
     );

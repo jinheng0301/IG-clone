@@ -4,7 +4,7 @@ import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/add_post_s
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/feed_screen.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/reels_screen.dart';
-import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/search.dart';
+import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/search_screen.dart';
 
 const webScreenSize = 600;
 

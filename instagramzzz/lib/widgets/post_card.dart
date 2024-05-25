@@ -50,6 +50,34 @@ class _PostCardState extends State<PostCard> {
     setState(() {});
   }
 
+  Future<void> _showDialogBox() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Want to delete post?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirestoreMethods().deletePost(
+                  widget.snap['postId'].toString(),
+                );
+                Navigator.of(context).pop();
+              },
+              child: const Text('Sure!'),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final model.User user = Provider.of<UserProvider>(context).getUser;
@@ -115,28 +143,23 @@ class _PostCardState extends State<PostCard> {
                 // delete the post
                 IconButton(
                   onPressed: () {
-                    showDialog(
+                    showModalBottomSheet(
                       context: context,
-                      builder: (context) => Dialog(
+                      builder: (context) => Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(10),
                         child: ListView(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           children: [
                             // Check if the current user is the owner of the post
                             if (user.uid == widget.snap['uid'].toString())
-                              InkWell(
-                                onTap: () async {
-                                  FirestoreMethods().deletePost(
-                                    widget.snap['postId'].toString(),
-                                  );
+                              ListTile(
+                                leading: Icon(Icons.delete_forever),
+                                title: Text('Delete post'),
+                                onTap: () {
                                   Navigator.of(context).pop();
+                                  _showDialogBox();
                                 },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                    horizontal: 16,
-                                  ),
-                                  child: const Text('Delete post'),
-                                ),
                               ),
                           ],
                         ),
@@ -264,7 +287,6 @@ class _PostCardState extends State<PostCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 InkWell(
-                  // TODO: show like account
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
