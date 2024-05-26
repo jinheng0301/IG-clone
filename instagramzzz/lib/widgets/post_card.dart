@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:instagramzzz/models/user.dart' as model;
 import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
@@ -335,11 +336,13 @@ class _PostCardState extends State<PostCard> {
                         ),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 10, top: 8),
-                      child: RichText(
-                        text: TextSpan(
-                          text: '${widget.snap['description']}',
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 10, top: 8),
+                        child: RichText(
+                          text: TextSpan(
+                            text: '${widget.snap['description']}',
+                          ),
                         ),
                       ),
                     ),

@@ -683,7 +683,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    buildStatColumn(postLength, 'posts'),
+                                    buildStatColumn(
+                                      postLength,
+                                      'posts',
+                                    ),
                                     GestureDetector(
                                       onTap: () {
                                         Navigator.push(

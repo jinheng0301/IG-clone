@@ -66,7 +66,6 @@ class _CommentScreenState extends State<CommentScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: mobileBackgroundColor,
         title: const Text('Comment'),
         centerTitle: false,
         // it shows with left align

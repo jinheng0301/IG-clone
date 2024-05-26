@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:instagramzzz/screens/extend_screens/profile_post_screen.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
-
   @override
   State<SearchScreen> createState() => _SearchScreenState();
 }
@@ -96,8 +96,11 @@ class _SearchScreenState extends State<SearchScreen> {
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   // if snapshot has no data
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                  return Center(
+                    child: LoadingAnimationWidget.newtonCradle(
+                      color: Colors.cyan,
+                      size: 60,
+                    ),
                   );
                 }
 
@@ -105,10 +108,34 @@ class _SearchScreenState extends State<SearchScreen> {
                   crossAxisCount: 3,
                   itemCount: (snapshot.data! as dynamic).docs.length,
                   itemBuilder: (context, index) {
-                    return Image.network(
-                      (snapshot.data! as dynamic).docs[index]['postUrl'],
-                      fit: BoxFit.cover,
-                    );
+                    DocumentSnapshot snap =
+                        (snapshot.data! as dynamic).docs[index];
+
+                    var posturl = (snap.data()! as dynamic)['postUrl'];
+                    var uid = (snap.data()! as dynamic)['uid'];
+
+                    if (posturl != null && uid != null) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfilePostScreen(
+                                uid: uid,
+                                postId: snap.id,
+                                initialIndex: index,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Image.network(
+                          (snapshot.data! as dynamic).docs[index]['postUrl'],
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    } else {
+                      return const Text('No image available');
+                    }
                   },
                   mainAxisSpacing: 8.0,
                   crossAxisSpacing: 8.0,
