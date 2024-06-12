@@ -189,7 +189,7 @@ class FirestoreMethods {
   }
 
   // remove user from follow screen
-  Future<void> isFollowedByOtherUser(String uid, String followId) async {
+  Future<void> removeUser(String uid, String followId) async {
     try {
       DocumentSnapshot snap =
           await _firestore.collection('users').doc(uid).get();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:instagramzzz/utils/global_variables.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -10,9 +11,13 @@ class ReelsScreen extends StatefulWidget {
 class _ReelsScreenState extends State<ReelsScreen> {
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Center(
-        child: Text('Reels screen'),
+        child: width < webScreenSize
+            ? const Text('Reels screen')
+            : const Text('Notification screen'),
       ),
     );
   }

@@ -1,23 +1,30 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
+import 'package:instagramzzz/utils/utils.dart';
 
 class MobileScreenLayout extends StatefulWidget {
-  const MobileScreenLayout({super.key});
+  final String uid;
+  const MobileScreenLayout({super.key, required this.uid});
 
   @override
   State<MobileScreenLayout> createState() => _MobileScreenLayoutState();
 }
 
 class _MobileScreenLayoutState extends State<MobileScreenLayout> {
+  var userData = {};
   int _page = 0;
+  bool isLoading = false;
+  bool isDisplayedAvatar = false;
   late PageController pageController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    getData();
     pageController = PageController();
   }
 
@@ -35,6 +42,30 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
   void onPageChanged(int page) {
     setState(() {
       _page = page;
+    });
+  }
+
+  void getData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      var userSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid)
+          .get();
+
+      userData = userSnap.data()!;
+      isDisplayedAvatar = true;
+
+      setState(() {});
+    } catch (e) {
+      showSnackBar(e.toString(), context);
+    }
+
+    setState(() {
+      isLoading = false;
     });
   }
 
@@ -83,10 +114,18 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
             backgroundColor: primaryColor,
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.person,
-              color: _page == 4 ? primaryColor : secondaryColor,
-            ),
+            icon: isDisplayedAvatar
+                ? CircleAvatar(
+                    radius: 13,
+                    backgroundColor: Colors.grey,
+                    backgroundImage: NetworkImage(
+                      userData['photoUrl'] ?? 'Photo not available',
+                    ),
+                  )
+                : Icon(
+                    Icons.person,
+                    color: _page == 4 ? primaryColor : secondaryColor,
+                  ),
             label: '',
             backgroundColor: primaryColor,
           ),

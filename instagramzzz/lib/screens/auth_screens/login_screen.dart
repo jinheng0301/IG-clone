@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
@@ -44,8 +45,12 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => ResponsiveLayout(
-            webScreenLayout: WebScreenLayout(),
-            mobileScreenLayout: MobileScreenLayout(),
+            webScreenLayout: WebScreenLayout(
+              uid: FirebaseAuth.instance.currentUser!.uid,
+            ),
+            mobileScreenLayout: MobileScreenLayout(
+              uid: FirebaseAuth.instance.currentUser!.uid,
+            ),
           ),
         ),
       );

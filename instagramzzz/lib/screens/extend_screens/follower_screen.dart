@@ -98,7 +98,7 @@ class _FollowerScreenState extends State<FollowerScreen> {
       filteredFollowerList = List.from(followerList);
     });
 
-    await FirestoreMethods().isFollowedByOtherUser(
+    await FirestoreMethods().removeUser(
       FirebaseAuth.instance.currentUser!.uid,
       uid,
     );

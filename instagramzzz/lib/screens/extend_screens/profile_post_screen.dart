@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/widgets/post_card.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -25,6 +27,7 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
   var userData = {};
   var postData = {};
   bool isLoading = false;
+  bool isFollowing = false;
 
   @override
   void initState() {
@@ -50,6 +53,10 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
           .get();
 
       userData = userSnap.data()!;
+
+      isFollowing = userSnap.data()!['followers'].contains(
+            FirebaseAuth.instance.currentUser!.uid,
+          );
 
       setState(() {});
     } catch (e) {
@@ -98,6 +105,25 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('${userData['username']} posts'),
+        actions: [
+          if (!isFollowing &&
+              FirebaseAuth.instance.currentUser!.uid != widget.uid)
+            TextButton(
+              onPressed: () async {
+                await FirestoreMethods().followUser(
+                  FirebaseAuth.instance.currentUser!.uid,
+                  userData['uid'],
+                );
+              },
+              child: Text(
+                'Follow',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+        ],
       ),
       body: isLoading
           ? Center(
@@ -107,7 +133,7 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
               ),
             )
           : PageView.builder(
-            controller: _pageController,
+              controller: _pageController,
               physics: BouncingScrollPhysics(),
               scrollDirection: Axis.vertical,
               itemCount: posts.length,

@@ -13,8 +13,8 @@ List<Widget> homeScreenItems = [
     uid: FirebaseAuth.instance.currentUser!.uid,
   ),
   SearchScreen(),
-  AddPostScreen(),
-  ReelsScreen(),
+  const AddPostScreen(),
+  const ReelsScreen(),
   ProfileScreen(
     uid: FirebaseAuth.instance.currentUser!.uid,
   ),

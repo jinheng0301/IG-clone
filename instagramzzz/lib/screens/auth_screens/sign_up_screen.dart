@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
@@ -70,8 +71,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ResponsiveLayout(
-            webScreenLayout: WebScreenLayout(),
-            mobileScreenLayout: MobileScreenLayout(),
+            webScreenLayout: WebScreenLayout(
+              uid: FirebaseAuth.instance.currentUser!.uid,
+            ),
+            mobileScreenLayout: MobileScreenLayout(
+              uid: FirebaseAuth.instance.currentUser!.uid,
+            ),
           ),
         ),
       );

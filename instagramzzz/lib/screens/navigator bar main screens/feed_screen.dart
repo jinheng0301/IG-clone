@@ -200,7 +200,10 @@ class FeedScreen extends StatelessWidget {
             physics: BouncingScrollPhysics(),
             children: [
               Container(
-                margin: EdgeInsets.only(top: 7),
+                margin: EdgeInsets.symmetric(
+                  horizontal: width > webScreenSize ? width * 0.3 : 0,
+                  vertical: width > webScreenSize ? 15 : 0,
+                ),
                 width: size.width,
                 height: size.height * 0.14,
                 child: storyCircleAvatars,

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
@@ -30,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int followers = 0;
   int following = 0;
   bool isFollowing = false;
+  bool isFollowBack = false;
   bool isLoading = false;
   bool isUser = false;
   bool showPost1 = false;
@@ -177,9 +180,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // Update following count to the length of the following list
       following = followingList.length;
+
+      // Check if the current user is following this user
       isFollowing = userSnap.data()!['followers'].contains(
             FirebaseAuth.instance.currentUser!.uid,
           );
+
+      // Check if the current user is being followed back by this user
+      isFollowBack =
+          followingList.contains(FirebaseAuth.instance.currentUser!.uid);
 
       setState(() {});
     } catch (e) {
@@ -360,294 +369,297 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       context: context,
                       builder: (BuildContext context) {
                         return SingleChildScrollView(
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.settings),
-                                              SizedBox(width: 15),
-                                              Text('Settings'),
-                                            ],
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.settings),
+                                                SizedBox(width: 15),
+                                                Text('Settings'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Text('Report...'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Text('Report...'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.social_distance),
-                                              SizedBox(width: 15),
-                                              Text('Threads'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.social_distance),
+                                                SizedBox(width: 15),
+                                                Text('Threads'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Text('Block'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Text('Block'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.local_activity),
-                                              SizedBox(width: 15),
-                                              Text('Your activity'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.local_activity),
+                                                SizedBox(width: 15),
+                                                Text('Your activity'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child:
+                                                const Text('About This Account'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child:
-                                              const Text('About This Account'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.archive),
-                                              SizedBox(width: 15),
-                                              Text('Archive'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.archive),
+                                                SizedBox(width: 15),
+                                                Text('Archive'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Text('Restrict'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Text('Restrict'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.qr_code),
-                                              SizedBox(width: 15),
-                                              Text('QR code'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.qr_code),
+                                                SizedBox(width: 15),
+                                                Text('QR code'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : Container(),
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.bookmark),
+                                                SizedBox(width: 15),
+                                                Text('Saved'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Text('Restrict'),
                                           ),
                                         ),
-                                      )
-                                    : Container(),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.bookmark),
-                                              SizedBox(width: 15),
-                                              Text('Saved'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.people),
+                                                SizedBox(width: 15),
+                                                Text('Supervision'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Text('Restrict'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Text('Restrict'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.people),
-                                              SizedBox(width: 15),
-                                              Text('Supervision'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.credit_card),
+                                                SizedBox(width: 15),
+                                                Text('Orders and payments'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child:
+                                                const Text('See shared activity'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Text('Restrict'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.credit_card),
-                                              SizedBox(width: 15),
-                                              Text('Orders and payments'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.verified),
+                                                SizedBox(width: 15),
+                                                Text('Meta verified'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Text('Hide your story'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child:
-                                              const Text('See shared activity'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.verified),
-                                              SizedBox(width: 15),
-                                              Text('Meta verified'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.closed_caption),
+                                                SizedBox(width: 15),
+                                                Text('Closed friends'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Text('Remove follower'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Text('Hide your story'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.closed_caption),
-                                              SizedBox(width: 15),
-                                              Text('Closed friends'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.star_outline),
+                                                SizedBox(width: 15),
+                                                Text('Favourites'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Text('Copy Profile URL'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Text('Remove follower'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.star_outline),
-                                              SizedBox(width: 15),
-                                              Text('Favourites'),
-                                            ],
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? Container()
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Text('Show QR code'),
                                           ),
                                         ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Text('Copy Profile URL'),
+                                  FirebaseAuth.instance.currentUser!.uid ==
+                                          widget.uid
+                                      ? Container()
+                                      : GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child:
+                                                const Text('Share this profile'),
+                                          ),
                                         ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? Container()
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child: const Text('Show QR code'),
-                                        ),
-                                      ),
-                                FirebaseAuth.instance.currentUser!.uid ==
-                                        widget.uid
-                                    ? Container()
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          margin: const EdgeInsets.all(6),
-                                          padding: const EdgeInsets.all(12),
-                                          child:
-                                              const Text('Share this profile'),
-                                        ),
-                                      ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -778,20 +790,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 children: [
                                                   Container(
                                                     margin:
-                                                        const EdgeInsets.all(8),
+                                                        const EdgeInsets.all(
+                                                            8),
                                                     padding:
-                                                        const EdgeInsets.all(8),
+                                                        const EdgeInsets.all(
+                                                            8),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .center,
                                                       children: [
                                                         Text(
-                                                          userData['username'],
+                                                          userData[
+                                                              'username'],
                                                           style:
                                                               const TextStyle(
                                                             fontWeight:
-                                                                FontWeight.bold,
+                                                                FontWeight
+                                                                    .bold,
                                                             fontSize: 28,
                                                           ),
                                                         ),
@@ -802,12 +818,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin:
-                                                          const EdgeInsets.all(
-                                                              8),
+                                                      margin: const EdgeInsets
+                                                          .all(8),
                                                       padding:
-                                                          const EdgeInsets.all(
-                                                              15),
+                                                          const EdgeInsets
+                                                              .all(15),
                                                       child: const Text(
                                                         'Add to close friend list',
                                                         style: TextStyle(
@@ -820,12 +835,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin:
-                                                          const EdgeInsets.all(
-                                                              8),
+                                                      margin: const EdgeInsets
+                                                          .all(8),
                                                       padding:
-                                                          const EdgeInsets.all(
-                                                              15),
+                                                          const EdgeInsets
+                                                              .all(15),
                                                       child: const Text(
                                                         'Mute',
                                                         style: TextStyle(
@@ -838,12 +852,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin:
-                                                          const EdgeInsets.all(
-                                                              8),
+                                                      margin: const EdgeInsets
+                                                          .all(8),
                                                       padding:
-                                                          const EdgeInsets.all(
-                                                              15),
+                                                          const EdgeInsets
+                                                              .all(15),
                                                       child: const Text(
                                                         'Restrict',
                                                         style: TextStyle(
@@ -870,12 +883,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       // dismiss the modal bottom sheet after unfollow button is tapped
                                                     },
                                                     child: Container(
-                                                      margin:
-                                                          const EdgeInsets.all(
-                                                              8),
+                                                      margin: const EdgeInsets
+                                                          .all(8),
                                                       padding:
-                                                          const EdgeInsets.all(
-                                                              15),
+                                                          const EdgeInsets
+                                                              .all(15),
                                                       child: const Text(
                                                         'Unfollow',
                                                         style: TextStyle(
@@ -892,24 +904,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         );
                                       },
                                     )
-                                  : FollowButton(
-                                      text: 'Follow',
-                                      backgroundColor: Colors.blue,
-                                      textColor: Colors.white,
-                                      borderColor: Colors.blue,
-                                      function: () async {
-                                        await FirestoreMethods().followUser(
-                                          FirebaseAuth
-                                              .instance.currentUser!.uid,
-                                          userData['uid'],
-                                        );
-                                        setState(() {
-                                          isFollowing = true;
-                                          followers++;
-                                        });
-                                      },
-                                    ),
-
+                                  : isFollowBack
+                                      ? FollowButton(
+                                          text: 'Follow Back',
+                                          backgroundColor: Colors.blue,
+                                          textColor: Colors.white,
+                                          borderColor: Colors.blue,
+                                          function: () async {
+                                            await FirestoreMethods()
+                                                .followUser(
+                                              FirebaseAuth
+                                                  .instance.currentUser!.uid,
+                                              userData['uid'],
+                                            );
+                                            setState(() {
+                                              isFollowing = true;
+                                              followers++;
+                                            });
+                                          },
+                                        )
+                                      : FollowButton(
+                                          text: 'Follow ',
+                                          backgroundColor: Colors.blue,
+                                          textColor: Colors.white,
+                                          borderColor: Colors.blue,
+                                          function: () async {
+                                            await FirestoreMethods()
+                                                .followUser(
+                                              FirebaseAuth
+                                                  .instance.currentUser!.uid,
+                                              userData['uid'],
+                                            );
+                                            setState(() {
+                                              isFollowing = true;
+                                              followers++;
+                                            });
+                                          },
+                                        ),
+                            
                           // message or share profile button
                           FirebaseAuth.instance.currentUser!.uid == widget.uid
                               ? MessageOrShareProfileButton(
@@ -932,7 +964,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   },
                                 ),
-
+                            
                           AddPeopleButton(
                             backgroundColor: mobileBackgroundColor,
                             borderColor: Colors.grey,
@@ -941,9 +973,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
-
+                            
                       const Divider(),
-
+                            
                       // show the post in profile screen
                       Column(
                         children: [
@@ -951,10 +983,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Container(
-                                margin:
-                                    const EdgeInsets.only(top: 10, bottom: 10),
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
+                                // margin:
+                                //     const EdgeInsets.only(top: 10, bottom: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10),
                                 child: IconButton(
                                   icon: const Icon(Icons.grid_on),
                                   onPressed: () {
@@ -966,10 +998,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               Container(
-                                margin:
-                                    const EdgeInsets.only(top: 10, bottom: 10),
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
+                                // margin:
+                                //     const EdgeInsets.only(top: 10, bottom: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10),
                                 child: IconButton(
                                   icon: const Icon(Icons.tiktok),
                                   onPressed: () {
@@ -981,10 +1013,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               Container(
-                                margin:
-                                    const EdgeInsets.only(top: 10, bottom: 10),
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
+                                // margin:
+                                //     const EdgeInsets.only(top: 10, bottom: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10),
                                 child: IconButton(
                                   icon: const Icon(Icons.tag_faces_rounded),
                                   onPressed: () {
@@ -997,9 +1029,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ],
                           ),
-
+                                  
                           const Divider(),
-
+                                  
                           // to test the show profile post function
                           showPost1
                               ? showProfilePost()

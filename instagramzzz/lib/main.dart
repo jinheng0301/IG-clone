@@ -61,8 +61,12 @@ class MyApp extends StatelessWidget {
                 // if snapshot has data means user has been authenticated
                 // then shows the responsive layout
                 return ResponsiveLayout(
-                  webScreenLayout: const WebScreenLayout(),
-                  mobileScreenLayout: const MobileScreenLayout(),
+                  webScreenLayout: WebScreenLayout(
+                    uid: FirebaseAuth.instance.currentUser!.uid,
+                  ),
+                  mobileScreenLayout: MobileScreenLayout(
+                    uid: FirebaseAuth.instance.currentUser!.uid,
+                  ),
                 );
               } else if (snapshot.hasError) {
                 return const Center(
