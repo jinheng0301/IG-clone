@@ -5,6 +5,7 @@ import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/widgets/comment_card.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:provider/provider.dart';
 
 class CommentScreen extends StatefulWidget {
@@ -30,34 +31,32 @@ class _CommentScreenState extends State<CommentScreen> {
     String commentId,
     bool isOwnerAcc,
   ) async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            isOwnerAcc
-                ? 'Are you sure want to delete comment?'
-                : 'Delete comment only available to current user.',
-          ),
-          actions: [
-            isOwnerAcc
-                ? TextButton(
-                    onPressed: () async {
-                      await FirestoreMethods().deleteComment(postId, commentId);
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Conlan7firm!'),
-                  )
-                : TextButton(
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('OK'),
-                  )
-          ],
-        );
-      },
-    );
+    isOwnerAcc
+        ? PanaraInfoDialog.show(
+            context,
+            title: 'Delete comment',
+            message: 'Are you sure want to delete comment?',
+            buttonText: 'Conlan7firm!',
+            onTapDismiss: () async {
+              await FirestoreMethods().deleteComment(postId, commentId);
+              Navigator.of(context).pop();
+            },
+            padding: EdgeInsets.all(10),
+            panaraDialogType: PanaraDialogType.warning,
+            textColor: Colors.red,
+          )
+        : PanaraInfoDialog.show(
+            context,
+            title: 'Delete comment',
+            message: 'Delete comment function only available to current user.',
+            buttonText: 'Conlan7firm!',
+            onTapDismiss: () async {
+              Navigator.of(context).pop();
+            },
+            padding: EdgeInsets.all(10),
+            panaraDialogType: PanaraDialogType.warning,
+            textColor: Colors.amber,
+          );
   }
 
   @override

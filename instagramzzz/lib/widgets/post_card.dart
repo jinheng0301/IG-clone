@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:instagramzzz/models/user.dart' as model;
 import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
+import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/comment_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/user_liked_screen.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
@@ -14,6 +14,7 @@ import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/like_animation.dart';
 import 'package:instagramzzz/widgets/zoom_image.dart';
 import 'package:intl/intl.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:provider/provider.dart';
 
 class PostCard extends StatefulWidget {
@@ -52,30 +53,30 @@ class _PostCardState extends State<PostCard> {
   }
 
   Future<void> _showDialogBox() async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Want to delete post?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await FirestoreMethods().deletePost(
-                  widget.snap['postId'].toString(),
-                );
-                Navigator.of(context).pop();
-              },
-              child: const Text('Sure!'),
-            )
-          ],
+    return PanaraConfirmDialog.show(
+      context,
+      title: 'Delete post',
+      message: 'Want to delete post?',
+      confirmButtonText: 'Sure!',
+      onTapConfirm: () async {
+        await FirestoreMethods().deletePost(
+          widget.snap['postId'].toString(),
+        );
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
         );
       },
+      cancelButtonText: 'No, please dont!',
+      onTapCancel: () {
+        Navigator.of(context).pop();
+      },
+      padding: EdgeInsets.all(10),
+      panaraDialogType: PanaraDialogType.normal,
+      barrierDismissible: false,
+      // Optional: Prevents dialog from closing when tapped outside
+      textColor: Colors.amber,
     );
   }
 

@@ -197,7 +197,7 @@ class _UserLikedScreenState extends State<UserLikedScreen> {
                                     );
                                   },
                                 )
-                              : Container(),
+                              : null,
                         ),
                       );
                     },

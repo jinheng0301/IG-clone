@@ -15,6 +15,7 @@ import 'package:instagramzzz/widgets/add_people_button.dart';
 import 'package:instagramzzz/widgets/follow_button.dart';
 import 'package:instagramzzz/widgets/message_or_share_profile_button.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -199,32 +200,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _showDialogBox() async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Log out mou?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('No no no, balik balik!'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await AuthMethods().logOut();
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                );
-              },
-              child: const Text('Conlan7firm!'),
-            ),
-          ],
+    return PanaraConfirmDialog.show(
+      context,
+      title: 'Log out',
+      message: 'Log out mou?',
+      confirmButtonText: 'Conlan7firm!',
+      onTapConfirm: () async {
+        await AuthMethods().logOut();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
         );
       },
+      cancelButtonText: 'Bukanlah balik!',
+      onTapCancel: () {
+        Navigator.of(context).pop();
+      },
+      padding: EdgeInsets.all(10),
+      panaraDialogType: PanaraDialogType.warning,
+      barrierDismissible: false,
+      // Optional: Prevents dialog from closing when tapped outside
+      textColor: Colors.amber,
     );
   }
 
