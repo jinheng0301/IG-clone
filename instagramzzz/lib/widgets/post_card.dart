@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:instagramzzz/models/user.dart' as model;
 import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
-import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/comment_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/user_liked_screen.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
@@ -62,11 +61,7 @@ class _PostCardState extends State<PostCard> {
         await FirestoreMethods().deletePost(
           widget.snap['postId'].toString(),
         );
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const LoginScreen(),
-          ),
-        );
+        Navigator.of(context).pop();
       },
       cancelButtonText: 'No, please dont!',
       onTapCancel: () {
