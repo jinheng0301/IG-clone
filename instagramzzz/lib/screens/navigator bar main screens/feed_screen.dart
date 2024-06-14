@@ -67,6 +67,8 @@ class FeedScreen extends StatelessWidget {
           context,
           AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
         ) {
+          var size = MediaQuery.of(context).size;
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: LoadingAnimationWidget.hexagonDots(
@@ -82,8 +84,6 @@ class FeedScreen extends StatelessWidget {
               child: Text('No posts available'),
             );
           }
-
-          var size = MediaQuery.of(context).size;
 
           // List of story circle avatars
           var storyCircleAvatars = FutureBuilder(

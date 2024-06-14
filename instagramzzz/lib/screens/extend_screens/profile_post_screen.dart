@@ -24,6 +24,7 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
   late PageController _pageController;
   List<DocumentSnapshot> posts = [];
   int postLength = 0;
+  var firebaseAuth = FirebaseAuth.instance.currentUser!.uid;
   var userData = {};
   var postData = {};
   bool isLoading = false;
@@ -54,9 +55,7 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
 
       userData = userSnap.data()!;
 
-      isFollowing = userSnap.data()!['followers'].contains(
-            FirebaseAuth.instance.currentUser!.uid,
-          );
+      isFollowing = userSnap.data()!['followers'].contains(firebaseAuth);
 
       setState(() {});
     } catch (e) {
@@ -106,12 +105,11 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
       appBar: AppBar(
         title: Text('${userData['username']} posts'),
         actions: [
-          if (!isFollowing &&
-              FirebaseAuth.instance.currentUser!.uid != widget.uid)
+          if (!isFollowing && firebaseAuth != widget.uid)
             TextButton(
               onPressed: () async {
                 await FirestoreMethods().followUser(
-                  FirebaseAuth.instance.currentUser!.uid,
+                  firebaseAuth,
                   userData['uid'],
                 );
               },

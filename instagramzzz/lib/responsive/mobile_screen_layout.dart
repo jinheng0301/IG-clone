@@ -84,34 +84,34 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.home,
+              size: 30,
               color: _page == 0 ? primaryColor : secondaryColor,
             ),
             label: '',
-            backgroundColor: primaryColor,
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.search,
+              size: 30,
               color: _page == 1 ? primaryColor : secondaryColor,
             ),
             label: '',
-            backgroundColor: primaryColor,
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.add_circle_outline,
+              size: 30,
               color: _page == 2 ? primaryColor : secondaryColor,
             ),
             label: '',
-            backgroundColor: primaryColor,
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.tiktok,
+              size: 30,
               color: _page == 3 ? primaryColor : secondaryColor,
             ),
             label: '',
-            backgroundColor: primaryColor,
           ),
           BottomNavigationBarItem(
             icon: isDisplayedAvatar
@@ -124,10 +124,10 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
                   )
                 : Icon(
                     Icons.person,
+                    size: 30,
                     color: _page == 4 ? primaryColor : secondaryColor,
                   ),
             label: '',
-            backgroundColor: primaryColor,
           ),
         ],
       ),

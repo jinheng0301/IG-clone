@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
@@ -27,6 +25,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  var firebaseAuth = FirebaseAuth.instance.currentUser!.uid; // current user ID
   var userData = {};
   int postLength = 0;
   int followers = 0;
@@ -171,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // get the post length
       var postSnap = await FirebaseFirestore.instance
           .collection('posts')
-          .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where('uid', isEqualTo: firebaseAuth)
           .get();
 
       userData = userSnap.data()!;
@@ -183,12 +182,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // Check if the current user is following this user
       isFollowing = userSnap.data()!['followers'].contains(
-            FirebaseAuth.instance.currentUser!.uid,
+            firebaseAuth,
           );
 
       // Check if the current user is being followed back by this user
-      isFollowBack =
-          followingList.contains(FirebaseAuth.instance.currentUser!.uid);
+      isFollowBack = followingList.contains(firebaseAuth);
 
       setState(() {});
     } catch (e) {
@@ -253,7 +251,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               actions: [
                 IconButton(
                   onPressed: () {},
-                  icon: FirebaseAuth.instance.currentUser!.uid == widget.uid
+                  icon: firebaseAuth == widget.uid
                       ? GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(
@@ -376,8 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -400,8 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             child: const Text('Report...'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -424,8 +420,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             child: const Text('Block'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -445,12 +440,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           child: Container(
                                             margin: const EdgeInsets.all(6),
                                             padding: const EdgeInsets.all(12),
-                                            child:
-                                                const Text('About This Account'),
+                                            child: const Text(
+                                                'About This Account'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -473,8 +467,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             child: const Text('Restrict'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -490,8 +483,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         )
                                       : Container(),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -514,8 +506,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             child: const Text('Restrict'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -538,8 +529,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             child: const Text('Restrict'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -559,12 +549,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           child: Container(
                                             margin: const EdgeInsets.all(6),
                                             padding: const EdgeInsets.all(12),
-                                            child:
-                                                const Text('See shared activity'),
+                                            child: const Text(
+                                                'See shared activity'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -584,11 +573,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           child: Container(
                                             margin: const EdgeInsets.all(6),
                                             padding: const EdgeInsets.all(12),
-                                            child: const Text('Hide your story'),
+                                            child:
+                                                const Text('Hide your story'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -608,11 +597,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           child: Container(
                                             margin: const EdgeInsets.all(6),
                                             padding: const EdgeInsets.all(12),
-                                            child: const Text('Remove follower'),
+                                            child:
+                                                const Text('Remove follower'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? GestureDetector(
                                           onTap: () {},
                                           child: Container(
@@ -632,11 +621,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           child: Container(
                                             margin: const EdgeInsets.all(6),
                                             padding: const EdgeInsets.all(12),
-                                            child: const Text('Copy Profile URL'),
+                                            child:
+                                                const Text('Copy Profile URL'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? Container()
                                       : GestureDetector(
                                           onTap: () {},
@@ -646,16 +635,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             child: const Text('Show QR code'),
                                           ),
                                         ),
-                                  FirebaseAuth.instance.currentUser!.uid ==
-                                          widget.uid
+                                  firebaseAuth == widget.uid
                                       ? Container()
                                       : GestureDetector(
                                           onTap: () {},
                                           child: Container(
                                             margin: const EdgeInsets.all(6),
                                             padding: const EdgeInsets.all(12),
-                                            child:
-                                                const Text('Share this profile'),
+                                            child: const Text(
+                                                'Share this profile'),
                                           ),
                                         ),
                                 ],
@@ -666,7 +654,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     );
                   },
-                  icon: FirebaseAuth.instance.currentUser!.uid == widget.uid
+                  icon: firebaseAuth == widget.uid
                       ? const Icon(Icons.more_horiz_outlined)
                       : const Icon(Icons.more_vert),
                 ),
@@ -706,8 +694,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 FollowerScreen(
-                                              uid: FirebaseAuth
-                                                  .instance.currentUser!.uid,
+                                              uid: firebaseAuth,
                                             ),
                                           ),
                                         );
@@ -724,8 +711,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 FollowingScreen(
-                                              uid: FirebaseAuth
-                                                  .instance.currentUser!.uid,
+                                              uid: firebaseAuth,
                                             ),
                                           ),
                                         );
@@ -764,7 +750,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           // whatever uid we enter in the parameter is equal to firebase auth current user
                           // then we will know this is our account
-                          FirebaseAuth.instance.currentUser!.uid == widget.uid
+                          firebaseAuth == widget.uid
                               ? FollowButton(
                                   text: 'Log out',
                                   backgroundColor: mobileBackgroundColor,
@@ -790,24 +776,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 children: [
                                                   Container(
                                                     margin:
-                                                        const EdgeInsets.all(
-                                                            8),
+                                                        const EdgeInsets.all(8),
                                                     padding:
-                                                        const EdgeInsets.all(
-                                                            8),
+                                                        const EdgeInsets.all(8),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .center,
                                                       children: [
                                                         Text(
-                                                          userData[
-                                                              'username'],
+                                                          userData['username'],
                                                           style:
                                                               const TextStyle(
                                                             fontWeight:
-                                                                FontWeight
-                                                                    .bold,
+                                                                FontWeight.bold,
                                                             fontSize: 28,
                                                           ),
                                                         ),
@@ -818,11 +800,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin: const EdgeInsets
-                                                          .all(8),
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       padding:
-                                                          const EdgeInsets
-                                                              .all(15),
+                                                          const EdgeInsets.all(
+                                                              15),
                                                       child: const Text(
                                                         'Add to close friend list',
                                                         style: TextStyle(
@@ -835,11 +818,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin: const EdgeInsets
-                                                          .all(8),
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       padding:
-                                                          const EdgeInsets
-                                                              .all(15),
+                                                          const EdgeInsets.all(
+                                                              15),
                                                       child: const Text(
                                                         'Mute',
                                                         style: TextStyle(
@@ -852,11 +836,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   GestureDetector(
                                                     onTap: () {},
                                                     child: Container(
-                                                      margin: const EdgeInsets
-                                                          .all(8),
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       padding:
-                                                          const EdgeInsets
-                                                              .all(15),
+                                                          const EdgeInsets.all(
+                                                              15),
                                                       child: const Text(
                                                         'Restrict',
                                                         style: TextStyle(
@@ -883,11 +868,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       // dismiss the modal bottom sheet after unfollow button is tapped
                                                     },
                                                     child: Container(
-                                                      margin: const EdgeInsets
-                                                          .all(8),
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       padding:
-                                                          const EdgeInsets
-                                                              .all(15),
+                                                          const EdgeInsets.all(
+                                                              15),
                                                       child: const Text(
                                                         'Unfollow',
                                                         style: TextStyle(
@@ -911,8 +897,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           textColor: Colors.white,
                                           borderColor: Colors.blue,
                                           function: () async {
-                                            await FirestoreMethods()
-                                                .followUser(
+                                            await FirestoreMethods().followUser(
                                               FirebaseAuth
                                                   .instance.currentUser!.uid,
                                               userData['uid'],
@@ -929,8 +914,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           textColor: Colors.white,
                                           borderColor: Colors.blue,
                                           function: () async {
-                                            await FirestoreMethods()
-                                                .followUser(
+                                            await FirestoreMethods().followUser(
                                               FirebaseAuth
                                                   .instance.currentUser!.uid,
                                               userData['uid'],
@@ -941,9 +925,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             });
                                           },
                                         ),
-                            
+
                           // message or share profile button
-                          FirebaseAuth.instance.currentUser!.uid == widget.uid
+                          firebaseAuth == widget.uid
                               ? MessageOrShareProfileButton(
                                   text: 'Share profile',
                                   backgroundColor: mobileBackgroundColor,
@@ -964,7 +948,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   },
                                 ),
-                            
+
                           AddPeopleButton(
                             backgroundColor: mobileBackgroundColor,
                             borderColor: Colors.grey,
@@ -973,9 +957,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
-                            
+
                       const Divider(),
-                            
+
                       // show the post in profile screen
                       Column(
                         children: [
@@ -983,10 +967,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Container(
-                                // margin:
-                                //     const EdgeInsets.only(top: 10, bottom: 10),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 child: IconButton(
                                   icon: const Icon(Icons.grid_on),
                                   onPressed: () {
@@ -998,10 +980,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               Container(
-                                // margin:
-                                //     const EdgeInsets.only(top: 10, bottom: 10),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 child: IconButton(
                                   icon: const Icon(Icons.tiktok),
                                   onPressed: () {
@@ -1013,10 +993,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               Container(
-                                // margin:
-                                //     const EdgeInsets.only(top: 10, bottom: 10),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 child: IconButton(
                                   icon: const Icon(Icons.tag_faces_rounded),
                                   onPressed: () {
@@ -1029,9 +1007,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ],
                           ),
-                                  
+
                           const Divider(),
-                                  
+
                           // to test the show profile post function
                           showPost1
                               ? showProfilePost()

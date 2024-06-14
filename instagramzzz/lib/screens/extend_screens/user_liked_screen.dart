@@ -20,10 +20,10 @@ class UserLikedScreen extends StatefulWidget {
 
 class _UserLikedScreenState extends State<UserLikedScreen> {
   TextEditingController searchController = TextEditingController();
-  bool isLoading = false;
   String currentUserId = FirebaseAuth.instance.currentUser!.uid;
   List<Map<String, dynamic>> userLikeList = [];
   List<Map<String, dynamic>> filteredUserLikeList = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -197,7 +197,7 @@ class _UserLikedScreenState extends State<UserLikedScreen> {
                                     );
                                   },
                                 )
-                              : null,
+                              : Container(),
                         ),
                       );
                     },

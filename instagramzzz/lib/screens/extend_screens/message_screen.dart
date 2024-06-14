@@ -8,9 +8,9 @@ class MessageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(''),
+        title: const Text(''),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Message screen'),
       ),
     );
