@@ -225,6 +225,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _showDeleteAccountDialogBox(context, String uid) async {
+    return PanaraConfirmDialog.show(
+      context,
+      title: 'Delete Account',
+      message: 'You sure u wanna delete your account?',
+      confirmButtonText: 'Conlan7firm!',
+      onTapConfirm: () async {
+        await FirestoreMethods().deleteAccount(uid);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
+        );
+      },
+      cancelButtonText: 'I bettter think again...',
+      onTapCancel: () {
+        Navigator.of(context).pop();
+      },
+      padding: EdgeInsets.all(10),
+      panaraDialogType: PanaraDialogType.warning,
+      barrierDismissible: false,
+      // Optional: Prevents dialog from closing when tapped outside
+      textColor: Colors.red,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return isLoading
@@ -623,6 +649,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         ),
                                   firebaseAuth == widget.uid
+                                      ? GestureDetector(
+                                          onTap: () {
+                                            _showDeleteAccountDialogBox(
+                                              context,
+                                              widget.uid,
+                                            );
+                                          },
+                                          child: Container(
+                                            margin: const EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(12),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.delete),
+                                                SizedBox(width: 15),
+                                                Text('Delete account'),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : Container(),
+                                  firebaseAuth == widget.uid
                                       ? Container()
                                       : GestureDetector(
                                           onTap: () {},
@@ -640,7 +687,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             margin: const EdgeInsets.all(6),
                                             padding: const EdgeInsets.all(12),
                                             child: const Text(
-                                                'Share this profile'),
+                                              'Share this profile',
+                                            ),
                                           ),
                                         ),
                                 ],

@@ -49,7 +49,7 @@ class _CommentScreenState extends State<CommentScreen> {
             context,
             title: 'Delete comment',
             message: 'Delete comment function only available to current user.',
-            buttonText: 'Conlan7firm!',
+            buttonText: 'OK, got it!',
             onTapDismiss: () async {
               Navigator.of(context).pop();
             },

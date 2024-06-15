@@ -211,6 +211,9 @@ class FirestoreMethods {
 
   Future<void> deleteAccount(String uid) async {
     try {
+      // Start a batch for atomic operations
+      WriteBatch batch = _firestore.batch();
+
       // Get user's document reference
       DocumentReference userRef = _firestore.collection('users').doc(uid);
 
@@ -222,7 +225,7 @@ class FirestoreMethods {
 
       // Delete all posts by the user
       for (var doc in postSnapshot.docs) {
-        await _firestore.collection('posts').doc(doc.id).delete();
+        batch.delete(doc.reference);
       }
 
       // Get all comments made by the user
@@ -233,14 +236,14 @@ class FirestoreMethods {
 
       // Delete all comments made by the user
       for (var doc in commentSnapshot.docs) {
-        await doc.reference.delete();
+        batch.delete(doc.reference);
       }
 
-      // Remove the user from followers/following lists
+      // Get all users for updating followers/following lists
       QuerySnapshot userSnapshot = await _firestore.collection('users').get();
       for (var doc in userSnapshot.docs) {
         if (doc.id != uid) {
-          await _firestore.collection('users').doc(doc.id).update({
+          batch.update(doc.reference, {
             'followers': FieldValue.arrayRemove([uid]),
             'following': FieldValue.arrayRemove([uid]),
           });
@@ -248,7 +251,11 @@ class FirestoreMethods {
       }
 
       // Finally, delete the user's document
-      await userRef.delete();
+      batch.delete(userRef);
+
+      // Commit the batch
+      await batch.commit();
+
       print("User and related data removed successfully.");
     } catch (e) {
       print('Unable to remove user: ${e.toString()}');
