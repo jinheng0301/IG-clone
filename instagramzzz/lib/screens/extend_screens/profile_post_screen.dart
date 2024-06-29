@@ -29,6 +29,7 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
   var postData = {};
   bool isLoading = false;
   bool isFollowing = false;
+  bool isFollowClicked = false;
 
   @override
   void initState() {
@@ -108,13 +109,27 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
           if (!isFollowing && firebaseAuth != widget.uid)
             TextButton(
               onPressed: () async {
+                setState(() {
+                  isFollowClicked = true;
+                });
+
                 await FirestoreMethods().followUser(
                   firebaseAuth,
                   userData['uid'],
                 );
+
+                setState(() {
+                  isFollowing = true;
+                });
+
+                Future.delayed(Duration(seconds: 3), () {
+                  setState(() {
+                    isFollowClicked = false;
+                  });
+                });
               },
               child: Text(
-                'Follow',
+                isFollowClicked ? 'Following' : 'Follow',
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.blue,

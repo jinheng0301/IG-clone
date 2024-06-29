@@ -168,7 +168,8 @@ class _FollowerScreenState extends State<FollowerScreen> {
                                   return AlertDialog(
                                     title: Text('Remove follower?'),
                                     content: Text(
-                                        'We won\'t tell ${username} that they were removed from your followers.'),
+                                      'We won\'t tell $username that they were removed from your followers.',
+                                    ),
                                     actions: [
                                       TextButton(
                                         onPressed: () {
