@@ -1,16 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:instagramzzz/resources/auth_methods.dart';
+import 'package:instagramzzz/resources/firestore_method.dart';
+import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/follower_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/following_screen.dart';
+import 'package:instagramzzz/screens/extend_screens/message_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/profile_post_screen.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/add_post_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
+import 'package:instagramzzz/widgets/add_people_button.dart';
+import 'package:instagramzzz/widgets/follow_button.dart';
+import 'package:instagramzzz/widgets/message_or_share_profile_button.dart';
 import 'package:instagramzzz/widgets/modal%20bottom%20sheet/modal_bottom_sheet1.dart';
 import 'package:instagramzzz/widgets/modal%20bottom%20sheet/modal_bottom_sheet2.dart';
-import 'package:instagramzzz/widgets/three_types_of_buttons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -192,6 +199,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  Future<void> _showDialogBox() async {
+    return PanaraConfirmDialog.show(
+      context,
+      title: 'Log out',
+      message: 'Log out mou?',
+      confirmButtonText: 'Conlan7firm!',
+      onTapConfirm: () async {
+        await AuthMethods().logOut();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
+        );
+      },
+      cancelButtonText: 'Bukanlah balik!',
+      onTapCancel: () {
+        Navigator.of(context).pop();
+      },
+      padding: EdgeInsets.all(10),
+      panaraDialogType: PanaraDialogType.warning,
+      barrierDismissible: false,
+      // Optional: Prevents dialog from closing when tapped outside
+      textColor: Colors.amber,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return isLoading
@@ -339,7 +372,215 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
 
-                      threeTypesOfButtons(uid: widget.uid),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // whatever uid we enter in the parameter is equal to firebase auth current user
+                          // then we will know this is our account
+                          firebaseAuth == widget.uid
+                              ? FollowButton(
+                                  text: 'Log out',
+                                  backgroundColor: mobileBackgroundColor,
+                                  textColor: primaryColor,
+                                  borderColor: Colors.grey,
+                                  function: _showDialogBox,
+                                )
+                              : isFollowing
+                                  ? FollowButton(
+                                      text: 'Following',
+                                      backgroundColor: Colors.white,
+                                      textColor: Colors.black,
+                                      borderColor: Colors.grey,
+                                      function: () async {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return SizedBox(
+                                              width: double.infinity,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    margin:
+                                                        const EdgeInsets.all(8),
+                                                    padding:
+                                                        const EdgeInsets.all(8),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          userData['username'],
+                                                          style:
+                                                              const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 28,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Divider(),
+                                                  GestureDetector(
+                                                    onTap: () {},
+                                                    child: Container(
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      child: const Text(
+                                                        'Add to close friend list',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {},
+                                                    child: Container(
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      child: const Text(
+                                                        'Mute',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {},
+                                                    child: Container(
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      child: const Text(
+                                                        'Restrict',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      await FirestoreMethods()
+                                                          .followUser(
+                                                        firebaseAuth,
+                                                        userData['uid'],
+                                                      );
+                                                      setState(() {
+                                                        isFollowing = false;
+                                                        followers--;
+                                                      });
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      // dismiss the modal bottom sheet after unfollow button is tapped
+                                                    },
+                                                    child: Container(
+                                                      margin:
+                                                          const EdgeInsets.all(
+                                                              8),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      child: const Text(
+                                                        'Unfollow',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    )
+                                  : isFollowBack
+                                      ? FollowButton(
+                                          text: 'Follow Back',
+                                          backgroundColor: Colors.blue,
+                                          textColor: Colors.white,
+                                          borderColor: Colors.blue,
+                                          function: () async {
+                                            await FirestoreMethods().followUser(
+                                              firebaseAuth,
+                                              widget.uid,
+                                            );
+                                            setState(() {
+                                              isFollowing = true;
+                                              followers++;
+                                            });
+                                          },
+                                        )
+                                      : FollowButton(
+                                          text: 'Follow ',
+                                          backgroundColor: Colors.blue,
+                                          textColor: Colors.white,
+                                          borderColor: Colors.blue,
+                                          function: () async {
+                                            await FirestoreMethods().followUser(
+                                              firebaseAuth,
+                                              widget.uid,
+                                            );
+                                            setState(() {
+                                              isFollowing = true;
+                                              followers++;
+                                            });
+                                          },
+                                        ),
+
+                          // message or share profile button
+                          firebaseAuth == widget.uid
+                              ? MessageOrShareProfileButton(
+                                  text: 'Share profile',
+                                  backgroundColor: mobileBackgroundColor,
+                                  textColor: primaryColor,
+                                  borderColor: Colors.grey,
+                                  function: null,
+                                )
+                              : MessageOrShareProfileButton(
+                                  text: 'Message',
+                                  backgroundColor: mobileBackgroundColor,
+                                  borderColor: Colors.grey,
+                                  textColor: primaryColor,
+                                  function: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => MessageScreen(),
+                                      ),
+                                    );
+                                  },
+                                ),
+
+                          AddPeopleButton(
+                            backgroundColor: mobileBackgroundColor,
+                            borderColor: Colors.grey,
+                            iconColor: Colors.white,
+                            function: null,
+                          ),
+                        ],
+                      ),
 
                       const Divider(),
 

@@ -149,7 +149,7 @@ class _PostCardState extends State<PostCard> {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           children: [
                             // Check if the current user is the owner of the post
-                            if (user.uid == widget.snap['uid'].toString())
+                            if (user.uid == widget.snap['uid'].toString()) ...[
                               ListTile(
                                 leading: Icon(Icons.delete_forever),
                                 title: Text('Delete post'),
@@ -158,6 +158,7 @@ class _PostCardState extends State<PostCard> {
                                   _showDialogBox();
                                 },
                               ),
+                            ],
                           ],
                         ),
                       ),
