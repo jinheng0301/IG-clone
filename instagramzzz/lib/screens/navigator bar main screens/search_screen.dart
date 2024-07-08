@@ -22,6 +22,16 @@ class _SearchScreenState extends State<SearchScreen> {
     searchController.dispose();
   }
 
+  Future<void> _refreshSearchScreen() async {
+    try {
+      // Refresh logic here, e.g., re-fetch data from Firestore
+      // In this example, we are just delaying for 2 seconds
+      await Future.delayed(Duration(seconds: 2));
+    } catch (e) {
+      print('Error refereshing new profile screen: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,57 +101,60 @@ class _SearchScreenState extends State<SearchScreen> {
                 );
               },
             )
-          : FutureBuilder(
-              future: FirebaseFirestore.instance.collection('posts').get(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  // if snapshot has no data
-                  return Center(
-                    child: LoadingAnimationWidget.newtonCradle(
-                      color: Colors.cyan,
-                      size: 60,
-                    ),
-                  );
-                }
-
-                return MasonryGridView.count(
-                  crossAxisCount: 3,
-                  itemCount: (snapshot.data! as dynamic).docs.length,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot snap =
-                        (snapshot.data! as dynamic).docs[index];
-
-                    var posturl = (snap.data()! as dynamic)['postUrl'];
-                    var uid = (snap.data()! as dynamic)['uid'];
-
-                    if (posturl != null && uid != null) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProfilePostScreen(
-                                uid: uid,
-                                postId: snap.id,
-                                initialIndex: index,
+          : RefreshIndicator(
+            onRefresh: _refreshSearchScreen,
+            child: FutureBuilder(
+                future: FirebaseFirestore.instance.collection('posts').get(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    // if snapshot has no data
+                    return Center(
+                      child: LoadingAnimationWidget.newtonCradle(
+                        color: Colors.cyan,
+                        size: 60,
+                      ),
+                    );
+                  }
+            
+                  return MasonryGridView.count(
+                    crossAxisCount: 3,
+                    itemCount: (snapshot.data! as dynamic).docs.length,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot snap =
+                          (snapshot.data! as dynamic).docs[index];
+            
+                      var posturl = (snap.data()! as dynamic)['postUrl'];
+                      var uid = (snap.data()! as dynamic)['uid'];
+            
+                      if (posturl != null && uid != null) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilePostScreen(
+                                  uid: uid,
+                                  postId: snap.id,
+                                  initialIndex: index,
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        child: Image.network(
-                          (snapshot.data! as dynamic).docs[index]['postUrl'],
-                          fit: BoxFit.cover,
-                        ),
-                      );
-                    } else {
-                      return const Text('No image available');
-                    }
-                  },
-                  mainAxisSpacing: 8.0,
-                  crossAxisSpacing: 8.0,
-                );
-              },
-            ),
+                            );
+                          },
+                          child: Image.network(
+                            (snapshot.data! as dynamic).docs[index]['postUrl'],
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      } else {
+                        return const Text('No image available');
+                      }
+                    },
+                    mainAxisSpacing: 8.0,
+                    crossAxisSpacing: 8.0,
+                  );
+                },
+              ),
+          ),
     );
   }
 }

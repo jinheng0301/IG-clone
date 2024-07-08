@@ -116,7 +116,7 @@ class _FollowerScreenState extends State<FollowerScreen> {
             padding: const EdgeInsets.all(20),
             child: TextField(
               controller: searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: 'Search',
                 enabledBorder: UnderlineInputBorder(),
@@ -124,7 +124,7 @@ class _FollowerScreenState extends State<FollowerScreen> {
             ),
           ),
 
-          Divider(),
+          const Divider(),
 
           // Show all follower accounts
           Expanded(
@@ -135,62 +135,67 @@ class _FollowerScreenState extends State<FollowerScreen> {
                       size: 40,
                     ),
                   )
-                : ListView.builder(
-                    itemCount: filteredFollowerList.length,
-                    itemBuilder: (context, index) {
-                      var user = filteredFollowerList[index];
-                      var uid = user['uid'];
-                      var photoUrl = user['photoUrl'];
-                      var username = user['username'];
+                : filteredFollowerList.isEmpty
+                    ? const Center(
+                        child: Text('No follower account shown.'),
+                      )
+                    : ListView.builder(
+                        itemCount: filteredFollowerList.length,
+                        itemBuilder: (context, index) {
+                          var user = filteredFollowerList[index];
+                          var uid = user['uid'];
+                          var photoUrl = user['photoUrl'];
+                          var username = user['username'];
 
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => ProfileScreen(uid: uid),
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileScreen(uid: uid),
+                                ),
+                              );
+                            },
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(photoUrl),
+                              ),
+                              title: Text(username),
+                              trailing: FollowButton2(
+                                text: 'Remove',
+                                backgroundColor: mobileBackgroundColor,
+                                borderColor: secondaryColor,
+                                textColor: primaryColor,
+                                function: () {
+                                  return showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Remove follower?'),
+                                        content: Text(
+                                          'We won\'t tell $username that they were removed from your followers.',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              removeFollower(uid);
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text(
+                                              'Remove',
+                                              style:
+                                                  TextStyle(color: Colors.red),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
                             ),
                           );
                         },
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(photoUrl),
-                          ),
-                          title: Text(username),
-                          trailing: FollowButton2(
-                            text: 'Remove',
-                            backgroundColor: mobileBackgroundColor,
-                            borderColor: secondaryColor,
-                            textColor: primaryColor,
-                            function: () {
-                              return showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Remove follower?'),
-                                    content: Text(
-                                      'We won\'t tell $username that they were removed from your followers.',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          removeFollower(uid);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text(
-                                          'Remove',
-                                          style: TextStyle(color: Colors.red),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                      ),
           ),
         ],
       ),

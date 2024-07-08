@@ -132,7 +132,7 @@ class _FollowingScreenState extends State<FollowingScreen> {
             padding: const EdgeInsets.all(20),
             child: TextField(
               controller: searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: 'Search',
                 enabledBorder: UnderlineInputBorder(),
@@ -141,7 +141,7 @@ class _FollowingScreenState extends State<FollowingScreen> {
             ),
           ),
 
-          Divider(),
+          const Divider(),
 
           // Show all following account
           Expanded(
@@ -152,51 +152,55 @@ class _FollowingScreenState extends State<FollowingScreen> {
                       size: 40,
                     ),
                   )
-                : ListView.builder(
-                    itemCount: filteredFollowingList.length,
-                    itemBuilder: (context, index) {
-                      var user = filteredFollowingList[index];
+                : filteredFollowingList.isEmpty
+                    ? const Center(
+                        child: Text('No followed account shown.'),
+                      )
+                    : ListView.builder(
+                        itemCount: filteredFollowingList.length,
+                        itemBuilder: (context, index) {
+                          var user = filteredFollowingList[index];
 
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  ProfileScreen(uid: user['uid']),
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ProfileScreen(uid: user['uid']),
+                                ),
+                              );
+                            },
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(user['photoUrl']),
+                              ),
+                              title: Text(user['username']),
+                              trailing: user['uid'] != currentUserId
+                                  ? FollowButton2(
+                                      text: user['isFollowing']
+                                          ? 'Following'
+                                          : 'Follow',
+                                      backgroundColor: user['isFollowing']
+                                          ? mobileBackgroundColor
+                                          : Colors.blue,
+                                      borderColor: user['isFollowing']
+                                          ? secondaryColor
+                                          : Colors.blue,
+                                      textColor: user['isFollowing']
+                                          ? primaryColor
+                                          : Colors.white,
+                                      function: () {
+                                        toggleFollow(
+                                          user['uid'],
+                                          user['isFollowing'],
+                                        );
+                                      },
+                                    )
+                                  : Container(),
                             ),
                           );
                         },
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(user['photoUrl']),
-                          ),
-                          title: Text(user['username']),
-                          trailing: user['uid'] != currentUserId
-                              ? FollowButton2(
-                                  text: user['isFollowing']
-                                      ? 'Following'
-                                      : 'Follow',
-                                  backgroundColor: user['isFollowing']
-                                      ? mobileBackgroundColor
-                                      : Colors.blue,
-                                  borderColor: user['isFollowing']
-                                      ? secondaryColor
-                                      : Colors.blue,
-                                  textColor: user['isFollowing']
-                                      ? primaryColor
-                                      : Colors.white,
-                                  function: () {
-                                    toggleFollow(
-                                      user['uid'],
-                                      user['isFollowing'],
-                                    );
-                                  },
-                                )
-                              : Container(),
-                        ),
-                      );
-                    },
-                  ),
+                      ),
           ),
         ],
       ),
