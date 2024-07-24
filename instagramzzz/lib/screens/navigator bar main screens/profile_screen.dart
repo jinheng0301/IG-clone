@@ -21,6 +21,7 @@ import 'package:panara_dialogs/panara_dialogs.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
+
   ProfileScreen({required this.uid});
 
   @override
@@ -306,12 +307,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Row(
                           children: [
-                            CircleAvatar(
-                              radius: 40,
-                              backgroundColor: Colors.grey,
-                              backgroundImage: NetworkImage(
-                                userData['photoUrl'] ?? 'Photo not available',
-                              ),
+                            Stack(
+                              children: [
+                                CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor: Colors.grey,
+                                  backgroundImage: NetworkImage(
+                                    userData['photoUrl'],
+                                  ),
+                                ),
+                                if (firebaseAuth == widget.uid) ...[
+                                  Positioned(
+                                    bottom: -18,
+                                    left: 40,
+                                    child: IconButton(
+                                      color: Colors.white,
+                                      onPressed: () {
+                                        print('icon button pressed');
+                                      },
+                                      icon: Icon(Icons.add),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                             Expanded(
                               child: Column(
@@ -383,7 +401,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             userData['bio'] ?? 'Bio not available',
                           ),
                         ),
-              
+
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -415,20 +433,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   children: [
                                                     Container(
                                                       margin:
-                                                          const EdgeInsets.all(8),
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       padding:
-                                                          const EdgeInsets.all(8),
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       child: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
                                                                 .center,
                                                         children: [
                                                           Text(
-                                                            userData['username'],
+                                                            userData[
+                                                                'username'],
                                                             style:
                                                                 const TextStyle(
                                                               fontWeight:
-                                                                  FontWeight.bold,
+                                                                  FontWeight
+                                                                      .bold,
                                                               fontSize: 28,
                                                             ),
                                                           ),
@@ -439,12 +461,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     GestureDetector(
                                                       onTap: () {},
                                                       child: Container(
-                                                        margin:
-                                                            const EdgeInsets.all(
-                                                                8),
+                                                        margin: const EdgeInsets
+                                                            .all(8),
                                                         padding:
-                                                            const EdgeInsets.all(
-                                                                15),
+                                                            const EdgeInsets
+                                                                .all(15),
                                                         child: const Text(
                                                           'Add to close friend list',
                                                           style: TextStyle(
@@ -457,12 +478,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     GestureDetector(
                                                       onTap: () {},
                                                       child: Container(
-                                                        margin:
-                                                            const EdgeInsets.all(
-                                                                8),
+                                                        margin: const EdgeInsets
+                                                            .all(8),
                                                         padding:
-                                                            const EdgeInsets.all(
-                                                                15),
+                                                            const EdgeInsets
+                                                                .all(15),
                                                         child: const Text(
                                                           'Mute',
                                                           style: TextStyle(
@@ -475,12 +495,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     GestureDetector(
                                                       onTap: () {},
                                                       child: Container(
-                                                        margin:
-                                                            const EdgeInsets.all(
-                                                                8),
+                                                        margin: const EdgeInsets
+                                                            .all(8),
                                                         padding:
-                                                            const EdgeInsets.all(
-                                                                15),
+                                                            const EdgeInsets
+                                                                .all(15),
                                                         child: const Text(
                                                           'Restrict',
                                                           style: TextStyle(
@@ -506,12 +525,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                         // dismiss the modal bottom sheet after unfollow button is tapped
                                                       },
                                                       child: Container(
-                                                        margin:
-                                                            const EdgeInsets.all(
-                                                                8),
+                                                        margin: const EdgeInsets
+                                                            .all(8),
                                                         padding:
-                                                            const EdgeInsets.all(
-                                                                15),
+                                                            const EdgeInsets
+                                                                .all(15),
                                                         child: const Text(
                                                           'Unfollow',
                                                           style: TextStyle(
@@ -535,7 +553,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             textColor: Colors.white,
                                             borderColor: Colors.blue,
                                             function: () async {
-                                              await FirestoreMethods().followUser(
+                                              await FirestoreMethods()
+                                                  .followUser(
                                                 firebaseAuth,
                                                 widget.uid,
                                               );
@@ -551,7 +570,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             textColor: Colors.white,
                                             borderColor: Colors.blue,
                                             function: () async {
-                                              await FirestoreMethods().followUser(
+                                              await FirestoreMethods()
+                                                  .followUser(
                                                 firebaseAuth,
                                                 widget.uid,
                                               );
@@ -561,7 +581,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               });
                                             },
                                           ),
-              
+
                             // message or share profile button
                             firebaseAuth == widget.uid
                                 ? MessageOrShareProfileButton(
@@ -584,7 +604,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       );
                                     },
                                   ),
-              
+
                             AddPeopleButton(
                               backgroundColor: mobileBackgroundColor,
                               borderColor: Colors.grey,
@@ -593,9 +613,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ],
                         ),
-              
+
                         const Divider(),
-              
+
                         // show the post in profile screen
                         Column(
                           children: [
@@ -603,8 +623,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   child: IconButton(
                                     icon: const Icon(Icons.grid_on),
                                     onPressed: () {
@@ -616,8 +636,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                                 Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   child: IconButton(
                                     icon: const Icon(Icons.tiktok),
                                     onPressed: () {
@@ -629,8 +649,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                                 Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   child: IconButton(
                                     icon: const Icon(Icons.tag_faces_rounded),
                                     onPressed: () {
@@ -643,9 +663,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
-              
+
                             const Divider(),
-              
+
                             // to test the show profile post function
                             showPost1
                                 ? showProfilePost()

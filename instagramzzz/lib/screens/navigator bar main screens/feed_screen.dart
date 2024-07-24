@@ -153,6 +153,7 @@ class FeedScreen extends StatelessWidget {
                               bottom: -18,
                               left: 30,
                               child: IconButton(
+                                color: Colors.white,
                                 onPressed: () {},
                                 iconSize: 28,
                                 icon: Icon(Icons.add),
