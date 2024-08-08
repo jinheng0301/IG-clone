@@ -106,7 +106,7 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
       appBar: AppBar(
         title: Text('${userData['username']} posts'),
         actions: [
-          if (!isFollowing && firebaseAuth != widget.uid)
+          if (!isFollowing && firebaseAuth != widget.uid)...[
             TextButton(
               onPressed: () async {
                 setState(() {
@@ -136,6 +136,7 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
                 ),
               ),
             ),
+          ],
         ],
       ),
       body: isLoading
