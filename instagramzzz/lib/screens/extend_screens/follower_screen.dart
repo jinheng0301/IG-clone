@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
+import 'package:instagramzzz/screens/extend_screens/message_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/follow_button2.dart';
@@ -104,6 +105,32 @@ class _FollowerScreenState extends State<FollowerScreen> {
     );
   }
 
+  Future<void> _showRemoveFollowerDialog(String uid, String username) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove follower?'),
+          content: Text(
+            'We won\'t tell $username that they were removed from your followers.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                removeFollower(uid);
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Remove',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,37 +187,28 @@ class _FollowerScreenState extends State<FollowerScreen> {
                                 backgroundImage: NetworkImage(photoUrl),
                               ),
                               title: Text(username),
-                              trailing: FollowButton2(
-                                text: 'Remove',
-                                backgroundColor: mobileBackgroundColor,
-                                borderColor: secondaryColor,
-                                textColor: primaryColor,
-                                function: () {
-                                  return showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text('Remove follower?'),
-                                        content: Text(
-                                          'We won\'t tell $username that they were removed from your followers.',
+                              trailing: Wrap(
+                                children: [
+                                  FollowButton2(
+                                    text: 'Message',
+                                    backgroundColor: mobileBackgroundColor,
+                                    borderColor: secondaryColor,
+                                    textColor: primaryColor,
+                                    function: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => MessageScreen(),
                                         ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              removeFollower(uid);
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text(
-                                              'Remove',
-                                              style:
-                                                  TextStyle(color: Colors.red),
-                                            ),
-                                          ),
-                                        ],
                                       );
                                     },
-                                  );
-                                },
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      _showRemoveFollowerDialog(uid, username);
+                                    },
+                                    icon: Icon(Icons.more_vert),
+                                  ),
+                                ],
                               ),
                             ),
                           );
