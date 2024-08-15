@@ -105,27 +105,65 @@ class _FollowerScreenState extends State<FollowerScreen> {
     );
   }
 
-  Future<void> _showRemoveFollowerDialog(String uid, String username) {
-    return showDialog(
+  Future<void> _showRemoveFollowerDialog(
+    String uid,
+    String username,
+    String photoUrl,
+  ) {
+    return showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Remove follower?'),
-          content: Text(
-            'We won\'t tell $username that they were removed from your followers.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                removeFollower(uid);
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Remove',
-                style: TextStyle(color: Colors.red),
-              ),
+        return Container(
+          margin: EdgeInsets.all(10),
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(photoUrl),
+                      radius: 30,
+                    ),
+                    SizedBox(width: 15),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Remove follower?',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'We won\'t tell $username that they were removed from your followers.',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Divider(),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    removeFollower(uid);
+                  },
+                  child: ListTile(
+                    title: Text(
+                      'Remove',
+                      style: TextStyle(
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                )
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -204,7 +242,11 @@ class _FollowerScreenState extends State<FollowerScreen> {
                                   ),
                                   IconButton(
                                     onPressed: () {
-                                      _showRemoveFollowerDialog(uid, username);
+                                      _showRemoveFollowerDialog(
+                                        user['uid'],
+                                        user['username'],
+                                        user['photoUrl'],
+                                      );
                                     },
                                     icon: Icon(Icons.more_vert),
                                   ),

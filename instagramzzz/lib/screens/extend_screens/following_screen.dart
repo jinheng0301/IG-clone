@@ -131,8 +131,12 @@ class _FollowingScreenState extends State<FollowingScreen> {
   }
 
   Future<void> _showFollowOptions(
-      String photoUrl, String username, String uid, bool isFollowing) async {
-    return await showModalBottomSheet(
+    String photoUrl,
+    String username,
+    String uid,
+    bool isFollowing,
+  ) {
+    return showModalBottomSheet(
       context: context,
       builder: (context) => Container(
         padding: EdgeInsets.all(20),

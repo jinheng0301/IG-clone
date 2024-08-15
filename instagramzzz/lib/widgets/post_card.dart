@@ -28,6 +28,7 @@ class _PostCardState extends State<PostCard> {
   bool isLikeAnimating = false;
   int commentLength = 0;
   List<String> mutualFollowers = [];
+  List<String> mutualFollowerIds = [];
 
   @override
   void initState() {
@@ -63,7 +64,9 @@ class _PostCardState extends State<PostCard> {
 
       List following = currentUserDoc.data()!['following'];
 
-      List<String> mutualFollowerIds = [];
+       // Clear lists before adding new data
+      mutualFollowers.clear();
+      mutualFollowerIds.clear();
 
       // Check if users who liked the post are in the current user's following list
       for (var uid in widget.snap['likes']) {
@@ -186,7 +189,7 @@ class _PostCardState extends State<PostCard> {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           children: [
                             // Check if the current user is the owner of the post
-                            if (user.uid == widget.snap['uid'].toString()) ...[
+                            if (user.uid == firebaseAuth) ...[
                               ListTile(
                                 leading: Icon(Icons.delete_forever),
                                 title: Text('Delete post'),
@@ -361,9 +364,20 @@ class _PostCardState extends State<PostCard> {
                       ),
                       // Display mutual followers
                       for (var i = 0; i < mutualFollowers.length; i++) ...[
-                        TextSpan(
-                          text: '${mutualFollowers[i]}',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        WidgetSpan(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileScreen(uid: mutualFollowerIds[i])
+                                ),
+                              );
+                            },
+                            child: Text(
+                              mutualFollowers[i],
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ),
                         if (i < mutualFollowers.length - 1) ...[
                           const TextSpan(text: ', '),
