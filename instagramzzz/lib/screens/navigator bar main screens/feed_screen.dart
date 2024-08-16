@@ -6,8 +6,10 @@ import 'package:instagramzzz/screens/extend_screens/message_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/notification_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
+import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/post_card.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:image_picker/image_picker.dart';
 
 class FeedScreen extends StatelessWidget {
   final uid;
@@ -154,7 +156,10 @@ class FeedScreen extends StatelessWidget {
                               left: 30,
                               child: IconButton(
                                 color: Colors.white,
-                                onPressed: () {},
+                                onPressed: () async {
+                                  await pickImage(ImageSource.camera);
+                                  Navigator.of(context).pop();
+                                },
                                 iconSize: 28,
                                 icon: Icon(Icons.add),
                               ),

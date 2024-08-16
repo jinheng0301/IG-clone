@@ -172,17 +172,15 @@ class _FollowingScreenState extends State<FollowingScreen> {
             ListTile(
               title: Text('Mute'),
             ),
-            GestureDetector(
+            ListTile(
               onTap: () {
                 Navigator.pop(context);
                 toggleFollow(uid, isFollowing);
               },
-              child: ListTile(
-                title: Text(
-                  isFollowing ? 'Unfollow' : 'Follow',
-                  style: TextStyle(
-                    color: Colors.red,
-                  ),
+              title: Text(
+                isFollowing ? 'Unfollow' : 'Follow',
+                style: TextStyle(
+                  color: Colors.red,
                 ),
               ),
             ),

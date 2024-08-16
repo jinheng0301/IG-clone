@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
 import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
@@ -322,8 +323,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     left: 40,
                                     child: IconButton(
                                       color: Colors.white,
-                                      onPressed: () {
+                                      onPressed: () async {
                                         print('icon button pressed');
+                                        await pickImage(ImageSource.camera);
+                                        Navigator.of(context).pop();
                                       },
                                       icon: Icon(Icons.add),
                                     ),
