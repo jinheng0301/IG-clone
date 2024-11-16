@@ -52,25 +52,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // since we have three column widgets in the profile screen
-  Column buildStatColumn(int num, String label) {
+  Column buildStatColumn(String userName, int num, String label) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          num.toString(),
+          userName,
           style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
+            fontSize: 17,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Padding(
+          padding: const EdgeInsets.only(left: 6),
+          child: Text(
+            num.toString(),
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         Container(
-          margin: const EdgeInsets.only(top: 4),
+          margin: const EdgeInsets.only(top: 2),
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              fontWeight: FontWeight.normal,
               color: Colors.grey,
             ),
           ),
@@ -219,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onTapCancel: () {
         Navigator.of(context).pop();
       },
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       panaraDialogType: PanaraDialogType.warning,
       barrierDismissible: false,
       // Optional: Prevents dialog from closing when tapped outside
@@ -231,7 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       // Refresh logic here, e.g., re-fetch data from Firestore
       // In this example, we are just delaying for 2 seconds
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 2));
     } catch (e) {
       print('Error refereshing new profile screen: $e');
     }
@@ -306,98 +317,96 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        Row(
-                          children: [
-                            Stack(
-                              children: [
-                                CircleAvatar(
-                                  radius: 40,
-                                  backgroundColor: Colors.grey,
-                                  backgroundImage: NetworkImage(
-                                    userData['photoUrl'],
-                                  ),
-                                ),
-                                if (firebaseAuth == widget.uid) ...[
-                                  Positioned(
-                                    bottom: -18,
-                                    left: 40,
-                                    child: IconButton(
-                                      color: Colors.white,
-                                      onPressed: () async {
-                                        print('icon button pressed');
-                                        await pickImage(ImageSource.camera);
-                                        Navigator.of(context).pop();
-                                      },
-                                      icon: Icon(Icons.add),
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              Stack(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 40,
+                                    backgroundColor: Colors.grey,
+                                    backgroundImage: NetworkImage(
+                                      userData['photoUrl'],
                                     ),
                                   ),
-                                ],
-                              ],
-                            ),
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      buildStatColumn(
-                                        postLength,
-                                        'posts',
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  FollowerScreen(
-                                                uid: firebaseAuth,
-                                              ),
-                                            ),
-                                          );
+                                  if (firebaseAuth == widget.uid) ...[
+                                    Positioned(
+                                      bottom: -18,
+                                      left: 40,
+                                      child: IconButton(
+                                        color: Colors.white,
+                                        onPressed: () async {
+                                          print('icon button pressed');
+                                          await pickImage(ImageSource.camera);
+                                          Navigator.of(context).pop();
                                         },
-                                        child: buildStatColumn(
-                                          followers,
-                                          'followers',
-                                        ),
+                                        icon: const Icon(Icons.add),
                                       ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  FollowingScreen(
-                                                uid: firebaseAuth,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: buildStatColumn(
-                                          following,
-                                          'following',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Text(
-                            userData['username'] ?? 'Username not available',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        buildStatColumn(
+                                          userData['username'],
+                                          postLength,
+                                          'posts',
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    FollowerScreen(
+                                                  uid: firebaseAuth,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: buildStatColumn(
+                                            '',
+                                            followers,
+                                            'followers',
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    FollowingScreen(
+                                                  uid: firebaseAuth,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: buildStatColumn(
+                                            '',
+                                            following,
+                                            'following',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Container(
+                          margin: const EdgeInsets.only(bottom: 6),
                           alignment: Alignment.centerLeft,
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(

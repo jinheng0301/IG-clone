@@ -64,7 +64,7 @@ class _PostCardState extends State<PostCard> {
 
       List following = currentUserDoc.data()!['following'];
 
-       // Clear lists before adding new data
+      // Clear lists before adding new data
       mutualFollowers.clear();
       mutualFollowerIds.clear();
 
@@ -293,9 +293,16 @@ class _PostCardState extends State<PostCard> {
                 ),
                 InkWell(
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => UserLikedScreen(
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => Container(
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: UserLikedScreen(
                           postId: widget.snap['postId'],
                           uid: firebaseAuth,
                         ),
@@ -369,8 +376,8 @@ class _PostCardState extends State<PostCard> {
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => ProfileScreen(uid: mutualFollowerIds[i])
-                                ),
+                                    builder: (context) => ProfileScreen(
+                                        uid: mutualFollowerIds[i])),
                               );
                             },
                             child: Text(
