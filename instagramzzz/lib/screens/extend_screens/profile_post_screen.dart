@@ -104,9 +104,12 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${userData['username']} posts'),
+        title: Text(
+          // Add special characters ('s)
+          '${userData['username']}\'s posts',
+        ),
         actions: [
-          if (!isFollowing && firebaseAuth != widget.uid)...[
+          if (!isFollowing && firebaseAuth != widget.uid) ...[
             TextButton(
               onPressed: () async {
                 setState(() {

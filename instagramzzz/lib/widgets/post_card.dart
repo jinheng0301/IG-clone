@@ -185,22 +185,23 @@ class _PostCardState extends State<PostCard> {
                       builder: (context) => Container(
                         width: double.infinity,
                         padding: EdgeInsets.all(10),
-                        child: ListView(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          children: [
-                            // Check if the current user is the owner of the post
-                            if (user.uid == firebaseAuth) ...[
-                              ListTile(
-                                leading: Icon(Icons.delete_forever),
-                                title: Text('Delete post'),
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                  _showDialogBox();
-                                },
-                              ),
-                            ],
-                          ],
-                        ),
+                        // Check if the current user is the owner of the post
+                        child: widget.snap['uid'] == firebaseAuth
+                            ? ListView(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                children: [
+                                  ListTile(
+                                    leading: Icon(Icons.delete_forever),
+                                    title: Text('Delete post'),
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                      _showDialogBox();
+                                    },
+                                  ),
+                                ],
+                              )
+                            : Container(),
                       ),
                     );
                   },

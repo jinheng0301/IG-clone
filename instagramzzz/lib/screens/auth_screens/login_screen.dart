@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
@@ -10,7 +9,9 @@ import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
 import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/text_fields.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
+// TODO: the log in process got error, where it cannot go to feed screen after login
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -42,20 +43,21 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (res == 'Success') {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => ResponsiveLayout(
-            webScreenLayout: WebScreenLayout(
-              uid: FirebaseAuth.instance.currentUser!.uid,
+      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        if (user != null) {
+          print("User logged in: ${user.uid}");
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => ResponsiveLayout(
+                webScreenLayout: WebScreenLayout(uid: user.uid),
+                mobileScreenLayout: MobileScreenLayout(uid: user.uid),
+              ),
             ),
-            mobileScreenLayout: MobileScreenLayout(
-              uid: FirebaseAuth.instance.currentUser!.uid,
-            ),
-          ),
-        ),
-      );
+          );
+        }
+      });
     } else {
-      showSnackBar(res, context);
+      showSnackBar(res, context); // Show error
     }
 
     setState(() {

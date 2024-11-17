@@ -85,8 +85,9 @@ class FeedScreen extends StatelessWidget {
 
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: LoadingAnimationWidget.hexagonDots(
-                  color: Colors.yellow,
+                child: LoadingAnimationWidget.flickr(
+                  leftDotColor: Colors.red,
+                  rightDotColor: Colors.blue,
                   size: 40,
                 ),
               );

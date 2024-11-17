@@ -9,12 +9,26 @@ class AuthMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<model.User> getUserDetails() async {
-    User currentUser = _auth.currentUser!;
+    User? currentUser = _auth.currentUser;
 
-    DocumentSnapshot snap =
-        await _firestore.collection('users').doc(currentUser.uid).get();
+    if (currentUser == null) {
+      throw Exception('No current user found. Please log in again.');
+    }
 
-    return model.User.fromSnap(snap);
+    try {
+      DocumentSnapshot snap =
+          await _firestore.collection('users').doc(currentUser.uid).get();
+
+      if (!snap.exists) {
+        await logOut(); // Log out if user is not found in the database
+        throw Exception('User not found in the database. Logged out.');
+      }
+
+      return model.User.fromSnap(snap);
+    } catch (e) {
+      await logOut(); // Ensure user is logged out if any error occurs
+      throw Exception('Error fetching user details: $e');
+    }
   }
 
   // sign up user
@@ -86,20 +100,22 @@ class AuthMethods {
     required String email,
     required String password,
   }) async {
-    String res = 'Some error ouccured.';
-
+    String res = 'Some error occurred.';
     try {
-      if (email.isNotEmpty || password.isNotEmpty) {
-        await _auth.signInWithEmailAndPassword(
+      if (email.isNotEmpty && password.isNotEmpty) {
+        UserCredential cred = await _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
-        res = "Success";
+        print("User signed in: ${cred.user?.uid}");
+        res = 'Success';
       } else {
         res = "Please enter all the fields";
       }
+    } on FirebaseAuthException catch (err) {
+      res = "Firebase Auth Error: ${err.message}";
     } catch (err) {
-      err.toString();
+      res = "General Error: $err";
     }
 
     return res;
