@@ -42,6 +42,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool showPost1 = false;
   bool showPost2 = false;
   bool showPost3 = false;
+  // Will store username and photoUrl
+  List<Map<String, String>> mutualFollowerInfo = [];
+  List<String> mutualFollowerIds = [];
 
   @override
   void initState() {
@@ -49,6 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     getData();
     showProfilePost();
+    getMutualFollower();
   }
 
   // since we have three column widgets in the profile screen
@@ -169,49 +173,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void getData() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      var userSnap = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.uid)
-          .get();
-
-      // get the following List
-      var followingList = userSnap.data()!['following'];
-
-      // get the post length
-      var postSnap = await FirebaseFirestore.instance
-          .collection('posts')
-          .where('uid', isEqualTo: firebaseAuth)
-          .get();
-
-      userData = userSnap.data()!;
-      postLength = postSnap.docs.length;
-      followers = userSnap.data()!['followers'].length;
-
-      // Update following count to the length of the following list
-      following = followingList.length;
-
-      // Check if the current user is following this user
-      isFollowing = userSnap.data()!['followers'].contains(firebaseAuth);
-
-      // Check if the current user is being followed back by this user
-      isFollowBack = followingList.contains(firebaseAuth);
-
-      setState(() {});
-    } catch (e) {
-      showSnackBar(e.toString(), context);
-    }
-
-    setState(() {
-      isLoading = false;
-    });
-  }
-
   Future<void> _showDialogBox() async {
     return PanaraConfirmDialog.show(
       context,
@@ -245,6 +206,120 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await Future.delayed(const Duration(seconds: 2));
     } catch (e) {
       print('Error refereshing new profile screen: $e');
+    }
+  }
+
+  void getData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      var userSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid) // Changed from firebaseAuth to widget.uid
+          .get();
+
+      // get the post length - fixed to use widget.uid instead of firebaseAuth
+      var postSnap = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('uid', isEqualTo: widget.uid)
+          .get();
+
+      userData = userSnap.data()!;
+      postLength = postSnap.docs.length;
+      followers = userSnap.data()!['followers'].length;
+      following = userSnap.data()!['following'].length;
+
+      // Check if the current user is following this user
+      isFollowing = userSnap.data()!['followers'].contains(firebaseAuth);
+
+      // Check if this user is following the current user (for follow back button)
+      var currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(firebaseAuth)
+          .get();
+      isFollowBack = currentUserDoc.data()!['followers'].contains(widget.uid);
+
+      setState(() {});
+    } catch (e) {
+      showSnackBar(e.toString(), context);
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  void getMutualFollower() async {
+    try {
+      print('Starting getMutualFollower');
+      // Get the current user's document
+      final currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(firebaseAuth)
+          .get();
+
+      print('Current user document exists: ${currentUserDoc.exists}');
+
+      // Get the profile user's document
+      final profileUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid)
+          .get();
+
+      print('Profile user document exists: ${profileUserDoc.exists}');
+
+      // Ensure the data exists and get followers
+      if (!currentUserDoc.exists || !profileUserDoc.exists) {
+        print('One or both user documents do not exist');
+        return;
+      }
+
+      List currentUserFollowers = currentUserDoc.data()!['followers'] ?? [];
+      List profileUserFollowers = profileUserDoc.data()!['followers'] ?? [];
+
+      print('Current user followers: ${currentUserFollowers.length}');
+      print('Profile user followers: ${profileUserFollowers.length}');
+
+      // Clear existing data
+      setState(() {
+        mutualFollowerInfo.clear();
+        mutualFollowerIds.clear();
+      });
+
+      // Find mutual followers
+      Set<String> mutualIds = Set<String>.from(currentUserFollowers)
+          .intersection(Set<String>.from(profileUserFollowers));
+
+      print('Found ${mutualIds.length} mutual followers');
+
+      // Convert to List and limit to 3 followers
+      mutualFollowerIds = mutualIds.take(3).toList();
+
+      // Fetch user details for each mutual follower
+      for (var uid in mutualFollowerIds) {
+        final userDoc =
+            await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+        if (userDoc.exists && userDoc.data() != null) {
+          final username = userDoc.data()!['username'] ?? 'Unknown';
+          final photoUrl = userDoc.data()!['photoUrl'] ?? '';
+          print('Found mutual follower: $username with photo: $photoUrl');
+
+          setState(() {
+            mutualFollowerInfo.add({
+              'username': username,
+              'photoUrl': photoUrl,
+            });
+          });
+        }
+      }
+
+      print('Final mutual follower info: $mutualFollowerInfo');
+    } catch (e) {
+      print('Error getting mutual followers: $e');
+      showSnackBar('Error loading mutual followers: $e', context);
     }
   }
 
@@ -413,6 +488,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             userData['bio'] ?? 'Bio not available',
                           ),
                         ),
+
+                        // To display the mutual follower in other user's account
+                        if (firebaseAuth != widget.uid &&
+                            mutualFollowerInfo.isNotEmpty) ...[
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 6),
+                            width: double.infinity,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Container for profile pictures and show up to 3 mutual follower profile pictures
+                                SizedBox(
+                                  width: 80,
+                                  height: 35,
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      for (int i = 0;
+                                          i <
+                                              mutualFollowerInfo.length
+                                                  .clamp(0, 3);
+                                          i++) ...[
+                                        Positioned(
+                                          left: i * 20.0, // Overlap the avatars
+                                          child: Container(
+                                            width: 30,
+                                            height: 30,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.black,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: ClipOval(
+                                              child: Image.network(
+                                                mutualFollowerInfo[i]
+                                                        ['photoUrl'] ??
+                                                    '',
+                                                width: 30,
+                                                height: 30,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Container(
+                                                    color: Colors.grey,
+                                                    child: const Icon(
+                                                      Icons.person,
+                                                      size: 20,
+                                                      color: Colors.white,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(width: 10),
+
+                                // Text section to display the mutual follower username
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'Followed by',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        mutualFollowerInfo
+                                            .take(3)
+                                            .map(
+                                              (follower) =>
+                                                  follower['username'],
+                                            )
+                                            .join(', '),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

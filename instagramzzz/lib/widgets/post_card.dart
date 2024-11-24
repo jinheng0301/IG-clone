@@ -377,8 +377,10 @@ class _PostCardState extends State<PostCard> {
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                    builder: (context) => ProfileScreen(
-                                        uid: mutualFollowerIds[i])),
+                                  builder: (context) => ProfileScreen(
+                                    uid: mutualFollowerIds[i],
+                                  ),
+                                ),
                               );
                             },
                             child: Text(
