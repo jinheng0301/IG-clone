@@ -10,7 +10,6 @@ import 'package:instagramzzz/responsive/web_screen_layout.dart';
 import 'package:instagramzzz/screens/auth_screens/login_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 void main() async {
@@ -30,12 +29,12 @@ void main() async {
   );
 
   // Firebase App Check for Android (if not using Web)
-  if (!kIsWeb) {
-    await FirebaseAppCheck.instance.activate(
-      androidProvider:
-          AndroidProvider.playIntegrity, // Use Play Integrity for Android
-    );
-  }
+  // if (!kIsWeb) {
+  //   await FirebaseAppCheck.instance.activate(
+  //     androidProvider:
+  //         AndroidProvider.playIntegrity, // Use Play Integrity for Android
+  //   );
+  // }
 
   runApp(MyApp());
 }
@@ -89,17 +88,7 @@ class MyApp extends StatelessWidget {
                                   uid: FirebaseAuth.instance.currentUser!.uid,
                                 ),
                               );
-                            } else {
-                              return const LoginScreen(); // Redirect to login if no user
                             }
-                          }
-                          if (userSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(
-                                color: primaryColor,
-                              ),
-                            );
                           }
                           return const LoginScreen(); // Handle error or no user case
                         },

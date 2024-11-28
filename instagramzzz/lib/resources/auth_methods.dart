@@ -42,57 +42,111 @@ class AuthMethods {
     required String bio,
     required Uint8List file,
   }) async {
-    String res = "Some error occurred";
-
     try {
-      if (email.isNotEmpty ||
-          password.isNotEmpty ||
-          username.isNotEmpty ||
-          bio.isNotEmpty) {
-        // register user
-        UserCredential cred = await _auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
+      // Validate input fields
+      if (email.isEmpty ||
+          password.isEmpty ||
+          username.isEmpty ||
+          bio.isEmpty) {
+        return "Please fill in all fields.";
+      }
 
-        print(cred.user!.uid);
+      // Validate email format
+      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+        return 'Invalid email format.';
+      }
 
-        String photoUrl = await StorageMethods().uploadImageToStorage(
+      // Validate password strength
+      if (password.length < 6) {
+        return 'Password should be at least 6 characters.';
+      }
+
+      // Attempt user creation with retries
+      UserCredential? cred;
+      for (int attempt = 0; attempt < 3; attempt++) {
+        try {
+          cred = await _auth.createUserWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+          break;
+        } on FirebaseAuthException catch (err) {
+          if (err.code == 'too-many-requests') {
+            await Future.delayed(Duration(seconds: 5 * (attempt + 1)));
+            continue;
+          }
+          return _mapAuthError(err);
+        }
+      }
+
+      if (cred == null) {
+        return "Unable to create user account. Please try again later.";
+      }
+
+      // Upload profile picture with error handling
+      String photoUrl;
+      try {
+        photoUrl = await StorageMethods().uploadImageToStorage(
           'profilePics',
           file,
           false,
         );
-
-        // add user to database
-        // we need to create a collection users if it doen't exist, then we need to make this document if it's not there
-        // and set this data
-        // ! means user can returned as null
-        model.User user = model.User(
-          username: username,
-          uid: cred.user!.uid,
-          email: email,
-          bio: bio,
-          photoUrl: photoUrl,
-          followers: [],
-          following: [],
-        );
-
-        await _firestore.collection('users').doc(cred.user!.uid).set(
-              user.toJson(),
-            );
-
-        res = 'Success';
+      } catch (storageError) {
+        // If image upload fails, use a default image
+        photoUrl = 'assets/images/Default_pfp.svg.png';
+        print('Profile image upload failed: $storageError');
       }
-    } on FirebaseAuthException catch (err) {
-      if (err.code == 'invalid email') {
-        res = 'The email is badly formatted.';
-      } else if (err.code == 'weak password') {
-        res = 'Password should be at least 6 characters';
+
+      // Create user model
+      model.User user = model.User(
+        username: username,
+        uid: cred.user!.uid,
+        email: email,
+        bio: bio,
+        photoUrl: photoUrl,
+        followers: [],
+        following: [],
+      );
+
+      // Add user to Firestore with retry
+      for (int attempt = 0; attempt < 3; attempt++) {
+        try {
+          await _firestore
+              .collection('users')
+              .doc(cred.user!.uid)
+              .set(user.toJson());
+          break;
+        } catch (firestoreError) {
+          if (attempt == 2) {
+            // If all attempts fail, delete the created user
+            await cred.user?.delete();
+            return "Failed to create user profile. Please try again.";
+          }
+          await Future.delayed(Duration(seconds: 2));
+        }
       }
+
+      return 'Success';
     } catch (err) {
-      res = err.toString();
+      print("Unexpected error during signup: $err");
+      return "An unexpected error occurred. Please try again.";
     }
-    return res;
+  }
+
+// Helper method to map Firebase Auth errors
+  String _mapAuthError(FirebaseAuthException err) {
+    switch (err.code) {
+      case 'email-already-in-use':
+        return 'Email is already registered.';
+      case 'invalid-email':
+        return 'Invalid email address.';
+      case 'weak-password':
+        return 'Password is too weak.';
+      case 'operation-not-allowed':
+        return 'Email/password accounts are not enabled.';
+      default:
+        return 'Authentication failed: ${err.message}';
+    }
   }
 
   // logging in user

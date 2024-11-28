@@ -11,7 +11,6 @@ import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/text_fields.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// TODO: the log in process got error, where it cannot go to feed screen after login
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -37,15 +36,17 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    String res = await AuthMethods().loginUser(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+    try {
+      String res = await AuthMethods().loginUser(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
-    if (res == 'Success') {
-      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (res == 'Success') {
+        // Get the current user directly
+        User? user = FirebaseAuth.instance.currentUser;
+
         if (user != null) {
-          print("User logged in: ${user.uid}");
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => ResponsiveLayout(
@@ -54,15 +55,19 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           );
+        } else {
+          showSnackBar('Login failed. Please try again.', context);
         }
+      } else {
+        showSnackBar(res, context);
+      }
+    } catch (e) {
+      showSnackBar('An error occurred: ${e.toString()}', context);
+    } finally {
+      setState(() {
+        _isLoading = false;
       });
-    } else {
-      showSnackBar(res, context); // Show error
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   void navigateToSignUp() {
