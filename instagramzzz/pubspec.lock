@@ -725,6 +725,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.1"
+  standard_searchbar:
+    dependency: "direct main"
+    description:
+      name: standard_searchbar
+      sha256: "37a16251fe1727442c00c7dde053f5ca1ca5b0d93cbe9437ece289d780cf0f99"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   stream_channel:
     dependency: transitive
     description:

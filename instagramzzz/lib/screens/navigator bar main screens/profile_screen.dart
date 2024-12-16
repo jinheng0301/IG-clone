@@ -9,13 +9,13 @@ import 'package:instagramzzz/screens/extend_screens/follower_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/following_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/message_screen.dart';
 import 'package:instagramzzz/screens/extend_screens/profile_post_screen.dart';
+import 'package:instagramzzz/screens/extend_screens/settings_and_activity.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/add_post_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/add_people_button.dart';
 import 'package:instagramzzz/widgets/follow_button.dart';
 import 'package:instagramzzz/widgets/message_or_share_profile_button.dart';
-import 'package:instagramzzz/widgets/modal%20bottom%20sheet/modal_bottom_sheet1.dart';
 import 'package:instagramzzz/widgets/modal%20bottom%20sheet/modal_bottom_sheet2.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
@@ -58,23 +58,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // since we have three column widgets in the profile screen
   Column buildStatColumn(String userName, int num, String label) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           userName,
           style: const TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: 17,
+            fontSize: 0,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Padding(
           padding: const EdgeInsets.only(left: 6),
           child: Text(
             num.toString(),
             style: const TextStyle(
-              fontSize: 17,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -84,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.normal,
               color: Colors.grey,
             ),
@@ -371,11 +371,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 IconButton(
                   onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return modalBottomSheet1(uid: widget.uid);
-                      },
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => settingAndActivity(),
+                      ),
                     );
                   },
                   icon: firebaseAuth == widget.uid
@@ -432,7 +431,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         buildStatColumn(
-                                          userData['username'],
+                                          // userData['username'],
+                                          '',
                                           postLength,
                                           'posts',
                                         ),

@@ -51,7 +51,17 @@ class _PostCardState extends State<PostCard> {
       showSnackBar(e.toString(), context);
     }
 
-    setState(() {});
+    try {
+      if (mounted) {
+        setState(() {
+          // Update your state here
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        showSnackBar(e.toString(), context);
+      }
+    }
   }
 
   void getMutualFollower() async {
@@ -86,7 +96,17 @@ class _PostCardState extends State<PostCard> {
 
       setState(() {});
     } catch (e) {
-      showSnackBar(e.toString(), context);
+      try {
+        if (mounted) {
+          setState(() {
+            // Update your state here
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          showSnackBar(e.toString(), context);
+        }
+      }
     }
   }
 
