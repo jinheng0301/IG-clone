@@ -62,17 +62,16 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
       setState(() {});
     } catch (e) {
       try {
-  if (mounted) {
-    setState(() {
-      // Update your state here
-    });
-  }
-} catch (e) {
-  if (mounted) {
-    showSnackBar(e.toString(), context);
-  }
-}
-
+        if (mounted) {
+          setState(() {
+            // Update your state here
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          showSnackBar(e.toString(), context);
+        }
+      }
     }
 
     setState(() {

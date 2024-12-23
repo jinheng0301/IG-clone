@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagramzzz/resources/auth_methods.dart';
+import 'package:instagramzzz/resources/storage_methods.dart';
 import 'package:instagramzzz/responsive/mobile_screen_layout.dart';
 import 'package:instagramzzz/responsive/responsive_layout_screen.dart';
 import 'package:instagramzzz/responsive/web_screen_layout.dart';
@@ -54,6 +55,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() {
       _isLoading = true;
     });
+
+    if (_image == null) {
+      showSnackBar('Please select a profile picture', context);
+      return;
+    }
 
     String res = await AuthMethods().signUpUser(
       email: _emailController.text,
@@ -127,8 +133,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           )
                         : CircleAvatar(
                             radius: 64,
-                            backgroundImage: AssetImage(
-                              'images/Default_pfp.svg.png',
+                            backgroundImage: NetworkImage(
+                              StorageMethods.DEFAULT_PROFILE_PICTURE,
                             ),
                           ),
                     Positioned(

@@ -93,7 +93,7 @@ class AuthMethods {
         );
       } catch (storageError) {
         // If image upload fails, use a default image
-        photoUrl = 'assets/images/Default_pfp.svg.png';
+        photoUrl = 'assets/images/Default_pfp.png';
         print('Profile image upload failed: $storageError');
       }
 
