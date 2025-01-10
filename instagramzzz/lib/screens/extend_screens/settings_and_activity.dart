@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/widgets/listtile_in_setting.dart';
@@ -55,7 +56,10 @@ class _settingAndActivityState extends State<settingAndActivity> {
                     ),
                     Row(
                       children: const [
-                        Icon(Icons.facebook),
+                        Icon(
+                          CupertinoIcons.infinite,
+                        ),
+                        SizedBox(width: 5),
                         Text(
                           'Meta',
                           style: TextStyle(
@@ -348,7 +352,7 @@ class _settingAndActivityState extends State<settingAndActivity> {
               'title': 'Account status',
             },
             {
-              'icon': Icons.facebook,
+              'icon': CupertinoIcons.infinite,
               'title': 'About',
             },
           ]),

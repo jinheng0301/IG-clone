@@ -65,7 +65,7 @@ class FeedScreen extends StatelessWidget {
                     );
                   },
                   icon: Icon(
-                    Icons.messenger_rounded,
+                    Icons.messenger_outline_rounded
                   ),
                 ),
               ],
