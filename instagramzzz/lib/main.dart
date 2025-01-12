@@ -28,14 +28,6 @@ void main() async {
     ),
   );
 
-  // Firebase App Check for Android (if not using Web)
-  // if (!kIsWeb) {
-  //   await FirebaseAppCheck.instance.activate(
-  //     androidProvider:
-  //         AndroidProvider.playIntegrity, // Use Play Integrity for Android
-  //   );
-  // }
-
   runApp(MyApp());
 }
 
