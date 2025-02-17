@@ -168,11 +168,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                TextFieldInput(
-                  hintText: 'Enter your password: ',
-                  textEditingController: _passwordController,
-                  textInputType: TextInputType.visiblePassword,
-                  isPass: true,
+                TextFormField(
+                  controller: _passwordController,
+                  keyboardType: TextInputType.visiblePassword,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your password: ',
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty || value.length < 6) {
+                      showSnackBar(
+                        'Password must be at least 6 characters long',
+                        context,
+                      );
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(
                   height: 20,
