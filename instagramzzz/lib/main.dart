@@ -15,21 +15,26 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyAzYym1SQNPa0Z7WmT46VFddpXHTbnNckc",
-      appId: kIsWeb
-          ? "1:975393109152:web:e17fd81b305e46e061c5c5"
-          : "1:975393109152:android:544be423787d1ff661c5c5",
-      messagingSenderId: "975393109152",
-      projectId: "ig-clone-2c574",
-      storageBucket: "ig-clone-2c574.appspot.com",
-    ),
-  );
+  if (kIsWeb) {
+    // Initialize Firebase for Web
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyAzYym1SQNPa0Z7WmT46VFddpXHTbnNckc",
+        appId: "1:975393109152:web:e17fd81b305e46e061c5c5",
+        messagingSenderId: "975393109152",
+        projectId: "ig-clone-2c574",
+        storageBucket: "ig-clone-2c574.appspot.com",
+      ),
+    );
+  } else {
+    // Initialize Firebase for Android/iOS (Ensure it's initialized only once)
+    await Firebase.initializeApp();
+  }
 
   runApp(MyApp());
 }
+
+
 
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
