@@ -21,6 +21,9 @@ void main() async {
       options: const FirebaseOptions(
         apiKey: "AIzaSyAzYym1SQNPa0Z7WmT46VFddpXHTbnNckc",
         appId: "1:975393109152:web:e17fd81b305e46e061c5c5",
+        //  appId: kIsWeb
+        //   ? "1:975393109152:web:e17fd81b305e46e061c5c5"
+        //   : "1:975393109152:android:544be423787d1ff661c5c5",
         messagingSenderId: "975393109152",
         projectId: "ig-clone-2c574",
         storageBucket: "ig-clone-2c574.appspot.com",
