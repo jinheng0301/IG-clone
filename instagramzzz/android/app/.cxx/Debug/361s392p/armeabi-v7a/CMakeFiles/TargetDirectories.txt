@@ -1,0 +1,2 @@
+C:/Users/user/Desktop/all assignment project/ALL FLUTTER PROJECT/IG clone/instagramzzz/android/app/.cxx/Debug/361s392p/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/user/Desktop/all assignment project/ALL FLUTTER PROJECT/IG clone/instagramzzz/android/app/.cxx/Debug/361s392p/armeabi-v7a/CMakeFiles/rebuild_cache.dir
