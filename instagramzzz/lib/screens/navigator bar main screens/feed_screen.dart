@@ -64,26 +64,23 @@ class FeedScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: Icon(
-                    Icons.messenger_outline_rounded
-                  ),
+                  icon: Icon(Icons.messenger_outline_rounded),
                 ),
               ],
             ),
       body: RefreshIndicator(
         onRefresh: _refreshFeed,
+        // Using StreamBuilder to fetch user data and posts
         child: StreamBuilder(
           stream: FirebaseFirestore.instance
-              .collection('posts')
-              .orderBy('datePublished', descending: true)
+              .collection('users')
+              .doc(uid)
               .snapshots(),
-          builder: (
-            context,
-            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
-          ) {
-            var size = MediaQuery.of(context).size;
+          builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+            List<dynamic> following = userSnapshot.data!.get('following') ?? [];
+            List<String> userIdsToShow = [uid, ...following.cast<String>()];
 
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (userSnapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: LoadingAnimationWidget.flickr(
                   leftDotColor: Colors.red,
@@ -93,157 +90,210 @@ class FeedScreen extends StatelessWidget {
               );
             }
 
-            if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
-              // Handle the case where there are no documents in the snapshot
+            if (!userSnapshot.hasData || userSnapshot.data == null) {
               return Center(
-                child: Text('No posts available'),
+                child: Text('User not found'),
               );
             }
 
-            // List of story circle avatars
-            var storyCircleAvatars = FutureBuilder(
-              future: FirebaseFirestore.instance.collection('users').get(),
+            if (userIdsToShow.isEmpty) {
+              return Center(
+                child: Text('Follow users to see their posts'),
+              );
+            }
+
+            // Add the second StreamBuilder for posts here
+            // Used to fetch posts from followed users
+            return StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('posts')
+                  .orderBy('datePublished', descending: true)
+                  .snapshots(),
               builder: (
                 context,
-                AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> userSnapshot,
+                AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
               ) {
-                if (userSnapshot.connectionState == ConnectionState.waiting) {
-                  return LoadingAnimationWidget.dotsTriangle(
-                    color: Colors.yellow,
-                    size: 40,
-                  );
-                }
+                var size = MediaQuery.of(context).size;
 
-                if (!userSnapshot.hasData || userSnapshot.data!.docs.isEmpty) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: Text('No registered users'),
+                    child: LoadingAnimationWidget.flickr(
+                      leftDotColor: Colors.red,
+                      rightDotColor: Colors.blue,
+                      size: 40,
+                    ),
                   );
                 }
 
-                print('Profile Photo: $uid');
+                if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Text('No posts available'),
+                  );
+                }
 
-                // Find the index of the current user in the userSnapshot
-                int currentUserIndex = userSnapshot.data!.docs.indexWhere(
-                  (user) => user.id == uid,
-                  // Assuming 'id' is the field for user's uid
-                );
+                // Filter posts to only show from followed users
+                var filteredPosts = snapshot.data!.docs.where((doc) {
+                  return userIdsToShow.contains(doc.data()['uid']);
+                }).toList();
 
-                print('Current User Index: $currentUserIndex');
+                if (filteredPosts.isEmpty) {
+                  return Center(
+                    child: Text('No posts from followed users'),
+                  );
+                }
 
-                List<Widget> circleAvatars = [];
+                // List of story circle avatars
+                var storyCircleAvatars = FutureBuilder(
+                  future: FirebaseFirestore.instance.collection('users').get(),
+                  builder: (
+                    context,
+                    AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
+                        userSnapshot,
+                  ) {
+                    if (userSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return LoadingAnimationWidget.dotsTriangle(
+                        color: Colors.yellow,
+                        size: 40,
+                      );
+                    }
 
-                // Add the current user's avatar with add button
-                circleAvatars.add(
-                  Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: Column(
-                      children: [
-                        Stack(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                print('show the current user avatar');
-                              },
-                              child: CircleAvatar(
-                                radius: 35,
-                                backgroundImage: NetworkImage(
-                                  userSnapshot.data!.docs[currentUserIndex]
-                                      ['photoUrl'],
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: -18,
-                              left: 30,
-                              child: IconButton(
-                                color: Colors.white,
-                                onPressed: () async {
-                                  await pickImage(ImageSource.camera);
-                                  Navigator.of(context).pop();
-                                },
-                                iconSize: 28,
-                                icon: Icon(Icons.add),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          userSnapshot.data!.docs[currentUserIndex]['username'],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                    if (!userSnapshot.hasData ||
+                        userSnapshot.data!.docs.isEmpty) {
+                      return Center(
+                        child: Text('No registered users'),
+                      );
+                    }
 
-                // Add other registered users' avatars without add button
-                for (int index = 0;
-                    index < userSnapshot.data!.docs.length;
-                    index++) {
-                  if (index != currentUserIndex) {
-                    User user = User.fromSnap(userSnapshot.data!.docs[index]);
+                    print('Profile Photo: $uid');
+
+                    // Find the index of the current user in the userSnapshot
+                    int currentUserIndex = userSnapshot.data!.docs.indexWhere(
+                      (user) => user.id == uid,
+                      // Assuming 'id' is the field for user's uid
+                    );
+
+                    print('Current User Index: $currentUserIndex');
+
+                    List<Widget> circleAvatars = [];
+
+                    // Add the current user's avatar with add button
                     circleAvatars.add(
                       Padding(
                         padding: EdgeInsets.only(right: 10),
                         child: Column(
                           children: [
-                            InkWell(
-                              onTap: () {
-                                print('other user avatar');
-                              },
-                              child: CircleAvatar(
-                                radius: 35,
-                                backgroundImage: NetworkImage(user.photoUrl),
-                              ),
+                            Stack(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    print('show the current user avatar');
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 35,
+                                    backgroundImage: NetworkImage(
+                                      userSnapshot.data!.docs[currentUserIndex]
+                                          ['photoUrl'],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: -18,
+                                  left: 30,
+                                  child: IconButton(
+                                    color: Colors.white,
+                                    onPressed: () async {
+                                      await pickImage(ImageSource.camera);
+                                      Navigator.of(context).pop();
+                                    },
+                                    iconSize: 28,
+                                    icon: Icon(Icons.add),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(user.username),
+                            Text(
+                              userSnapshot.data!.docs[currentUserIndex]
+                                  ['username'],
+                            ),
                           ],
                         ),
                       ),
                     );
-                  }
-                }
 
-                return ListView.builder(
-                  physics: BouncingScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: circleAvatars.length,
-                  itemBuilder: (context, index) {
-                    return circleAvatars[index];
+                    // Add other registered users' avatars without add button
+                    for (int index = 0;
+                        index < userSnapshot.data!.docs.length;
+                        index++) {
+                      if (index != currentUserIndex) {
+                        User user =
+                            User.fromSnap(userSnapshot.data!.docs[index]);
+                        circleAvatars.add(
+                          Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Column(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    print('other user avatar');
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 35,
+                                    backgroundImage:
+                                        NetworkImage(user.photoUrl),
+                                  ),
+                                ),
+                                Text(user.username),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                    }
+
+                    return ListView.builder(
+                      physics: BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: circleAvatars.length,
+                      itemBuilder: (context, index) {
+                        return circleAvatars[index];
+                      },
+                    );
                   },
                 );
-              },
-            );
 
-            // Combined ListView with story circle avatars and post cards
-            return ListView(
-              physics: BouncingScrollPhysics(),
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: width > webScreenSize ? width * 0.3 : 0,
-                    vertical: width > webScreenSize ? 15 : 0,
-                  ),
-                  width: size.width,
-                  height: size.height * 0.14,
-                  child: storyCircleAvatars,
-                ),
-                ListView.builder(
+                // Combined ListView with story circle avatars and post cards
+                return ListView(
                   physics: BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    return Container(
+                  children: [
+                    Container(
                       margin: EdgeInsets.symmetric(
                         horizontal: width > webScreenSize ? width * 0.3 : 0,
                         vertical: width > webScreenSize ? 15 : 0,
                       ),
-                      child: PostCard(
-                        snap: snapshot.data!.docs[index].data(),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                      width: size.width,
+                      height: size.height * 0.14,
+                      child: storyCircleAvatars,
+                    ),
+                    ListView.builder(
+                      physics: BouncingScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: filteredPosts.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: width > webScreenSize ? width * 0.3 : 0,
+                            vertical: width > webScreenSize ? 15 : 0,
+                          ),
+                          child: PostCard(
+                            snap: filteredPosts[index].data(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
             );
           },
         ),
