@@ -39,7 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isFollowBack = false;
   bool isLoading = false;
   bool isUser = false;
-  bool showPost1 = false;
+  bool showPost1 = true; // default to show posts
   bool showPost2 = false;
   bool showPost3 = false;
   // Will store username and photoUrl
@@ -443,7 +443,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     FollowerScreen(
-                                                  uid: firebaseAuth,
+                                                  uid: widget.uid,
+                                                  // ✅ Correct - shows profile user's followers
                                                 ),
                                               ),
                                             );
@@ -461,7 +462,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     FollowingScreen(
-                                                  uid: firebaseAuth,
+                                                  uid: widget.uid,
+                                                  // ✅ Correct - shows profile user's following
                                                 ),
                                               ),
                                             );
@@ -814,10 +816,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       horizontal: 10),
                                   child: IconButton(
                                     icon: const Icon(Icons.grid_on),
+                                    color:
+                                        showPost1 ? Colors.blue : Colors.grey,
                                     onPressed: () {
                                       setState(() {
                                         print('first button pressed');
                                         showPost1 = true;
+                                        showPost2 = false;
+                                        showPost3 = false;
                                       });
                                     },
                                   ),
@@ -827,10 +833,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       horizontal: 10),
                                   child: IconButton(
                                     icon: const Icon(Icons.tiktok),
+                                    color:
+                                        showPost2 ? Colors.blue : Colors.grey,
                                     onPressed: () {
                                       setState(() {
                                         print("second button pressed");
+                                        showPost1 = false;
                                         showPost2 = true;
+                                        showPost3 = false;
                                       });
                                     },
                                   ),
@@ -840,9 +850,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       horizontal: 10),
                                   child: IconButton(
                                     icon: const Icon(Icons.tag_faces_rounded),
+                                    color:
+                                        showPost3 ? Colors.blue : Colors.grey,
                                     onPressed: () {
                                       setState(() {
                                         print("third button pressed");
+                                        showPost1 = false;
+                                        showPost2 = false;
                                         showPost3 = true;
                                       });
                                     },

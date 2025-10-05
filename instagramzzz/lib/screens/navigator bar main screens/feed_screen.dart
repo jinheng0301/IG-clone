@@ -77,7 +77,7 @@ class FeedScreen extends StatelessWidget {
               .doc(uid)
               .snapshots(),
           builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
-            List<dynamic> following = userSnapshot.data!.get('following') ?? [];
+            List<dynamic> following = userSnapshot.data?.get('following') ?? [];
             List<String> userIdsToShow = [uid, ...following.cast<String>()];
 
             if (userSnapshot.connectionState == ConnectionState.waiting) {

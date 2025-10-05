@@ -39,7 +39,10 @@ class FirestoreMethods {
         likes: [],
       );
 
-      _firestore.collection('posts').doc(postId).set(post.toJson());
+      await _firestore.collection('posts').doc(postId).set({
+        ...post.toJson(),
+        'commentCount': 0, // Add this field
+      });
 
       res = 'Success';
     } catch (err) {
@@ -78,12 +81,18 @@ class FirestoreMethods {
     try {
       if (text.isNotEmpty) {
         String commentId = Uuid().v1();
-        await _firestore
+
+        // Use batch write for atomic operations
+        WriteBatch batch = _firestore.batch();
+
+        // Add comment
+        DocumentReference commentRef = _firestore
             .collection('posts')
             .doc(postId)
             .collection('comments')
-            .doc(commentId)
-            .set({
+            .doc(commentId);
+
+        batch.set(commentRef, {
           'profPic': profPic,
           'name': name,
           'uid': uid,
@@ -94,6 +103,14 @@ class FirestoreMethods {
           // initialize likes as an empty list first then we can store like count in firebase
           // just like the likePost function.
         });
+
+        // Increment comment count
+        DocumentReference postRef = _firestore.collection('posts').doc(postId);
+        batch.update(postRef, {
+          'commentCount': FieldValue.increment(1),
+        });
+
+        await batch.commit();
       } else {
         print('Text is empty');
       }
@@ -135,14 +152,25 @@ class FirestoreMethods {
   // deleting comment
   Future<void> deleteComment(String postId, String commentId) async {
     try {
-      await _firestore
+      WriteBatch batch = _firestore.batch();
+
+      // Delete comment
+      DocumentReference commentRef = _firestore
           .collection('posts')
           .doc(postId)
           .collection('comments')
-          .doc(commentId)
-          .delete();
+          .doc(commentId);
+      batch.delete(commentRef);
+
+      // Decrement count
+      DocumentReference postRef = _firestore.collection('posts').doc(postId);
+      batch.update(postRef, {
+        'commentCount': FieldValue.increment(-1),
+      });
+
+      await batch.commit();
     } catch (e) {
-      print('Error deleting comment: ${e.toString()}');
+      print('Error deleting comment: $e');
     }
   }
 

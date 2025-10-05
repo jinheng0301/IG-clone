@@ -27,15 +27,14 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   bool isLikeAnimating = false;
   int commentLength = 0;
-  List<String> mutualFollowers = [];
-  List<String> mutualFollowerIds = [];
+  String mutualFollowersText = '';
+  bool isLoadingMutual = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getComment();
-    getMutualFollower();
   }
 
   void getComment() async {
@@ -44,9 +43,14 @@ class _PostCardState extends State<PostCard> {
           .collection('posts')
           .doc(widget.snap['postId'])
           .collection('comments')
+          .limit(1)
           .get();
 
-      commentLength = snap.docs.length;
+      if (mounted) {
+        setState(() {
+          commentLength = snap.docs.length;
+        });
+      }
     } catch (e) {
       showSnackBar(e.toString(), context);
     }
@@ -64,48 +68,69 @@ class _PostCardState extends State<PostCard> {
     }
   }
 
-  void getMutualFollower() async {
+  Future<void> getMutualFollower() async {
+    if (isLoadingMutual) return; // Prevent multiple calls
+
+    setState(() {
+      isLoadingMutual = true;
+    });
+
     try {
+      // Only fetch if there are likes
+      if (widget.snap['likes'].isEmpty) {
+        if (mounted) {
+          setState(() {
+            mutualFollowersText = '';
+            isLoadingMutual = false;
+          });
+        }
+        return;
+      }
+
       final currentUser = FirebaseAuth.instance.currentUser!;
       final currentUserDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(currentUser.uid)
           .get();
 
-      List following = currentUserDoc.data()!['following'];
+      if (!currentUserDoc.exists) return;
 
-      // Clear lists before adding new data
-      mutualFollowers.clear();
-      mutualFollowerIds.clear();
+      List following = currentUserDoc.data()!['following'] ?? [];
+      List<String> mutualUsernames = [];
 
-      // Check if users who liked the post are in the current user's following list
+      // Only check first 2 mutual followers
+      int foundCount = 0;
       for (var uid in widget.snap['likes']) {
+        if (foundCount >= 2) break;
+
         if (following.contains(uid)) {
-          mutualFollowerIds.add(uid);
+          // Fetch username
+          final userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .get();
+
+          if (userDoc.exists && userDoc.data() != null) {
+            mutualUsernames.add(userDoc.data()!['username']);
+            foundCount++;
+          }
         }
       }
 
-      // Fetch usernames for the mutual followers
-      for (var uid in mutualFollowerIds) {
-        final userDoc =
-            await FirebaseFirestore.instance.collection('users').doc(uid).get();
-
-        String username = userDoc.data()!['username'];
-        mutualFollowers.add(username);
+      if (mounted) {
+        setState(() {
+          mutualFollowersText = mutualUsernames.isNotEmpty
+              ? 'Liked by ${mutualUsernames.join(', ')}'
+              : '';
+          isLoadingMutual = false;
+        });
       }
-
-      setState(() {});
     } catch (e) {
-      try {
-        if (mounted) {
-          setState(() {
-            // Update your state here
-          });
-        }
-      } catch (e) {
-        if (mounted) {
-          showSnackBar(e.toString(), context);
-        }
+      print('Error getting mutual followers: $e');
+      if (mounted) {
+        setState(() {
+          isLoadingMutual = false;
+        });
       }
     }
   }
@@ -252,7 +277,7 @@ class _PostCardState extends State<PostCard> {
               alignment: Alignment.center,
               children: [
                 AspectRatio(
-                  aspectRatio: 18 / 18,
+                  aspectRatio: 1 / 1,
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height,
                     width: double.infinity,
@@ -382,40 +407,61 @@ class _PostCardState extends State<PostCard> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RichText(
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.titleSmall,
-                    children: [
-                      const TextSpan(
-                        text: 'Liked by ',
-                        style: TextStyle(fontWeight: FontWeight.w400),
-                      ),
-                      // Display mutual followers
-                      for (var i = 0; i < mutualFollowers.length; i++) ...[
-                        WidgetSpan(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ProfileScreen(
-                                    uid: mutualFollowerIds[i],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              mutualFollowers[i],
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                        if (i < mutualFollowers.length - 1) ...[
-                          const TextSpan(text: ', '),
-                        ],
-                      ],
-                    ],
+                // RichText(
+                //   text: TextSpan(
+                //     style: Theme.of(context).textTheme.titleSmall,
+                //     children: [
+                //       const TextSpan(
+                //         text: 'Liked by ',
+                //         style: TextStyle(fontWeight: FontWeight.w400),
+                //       ),
+                //       // Display mutual followers
+                //       for (var i = 0; i < mutualFollowers.length; i++) ...[
+                //         WidgetSpan(
+                //           child: GestureDetector(
+                //             onTap: () {
+                //               Navigator.of(context).push(
+                //                 MaterialPageRoute(
+                //                   builder: (context) => ProfileScreen(
+                //                     uid: mutualFollowerIds[i],
+                //                   ),
+                //                 ),
+                //               );
+                //             },
+                //             child: Text(
+                //               mutualFollowers[i],
+                //               style: TextStyle(fontWeight: FontWeight.bold),
+                //             ),
+                //           ),
+                //         ),
+                //         if (i < mutualFollowers.length - 1) ...[
+                //           const TextSpan(text: ', '),
+                //         ],
+                //       ],
+                //     ],
+                //   ),
+                // ),
+
+                // Only show mutual followers if we have text
+                if (mutualFollowersText.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      mutualFollowersText,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  )
+                ] else if (!isLoadingMutual &&
+                    widget.snap['likes'].isNotEmpty) ...[
+                  // Lazy load mutual followers when widget becomes visible
+                  FutureBuilder(
+                    future: Future.delayed(Duration(milliseconds: 300), () {
+                      if (mounted) getMutualFollower();
+                    }),
+                    builder: (context, snapshot) => SizedBox.shrink(),
                   ),
-                ),
+                ],
+
                 Row(
                   children: [
                     GestureDetector(
