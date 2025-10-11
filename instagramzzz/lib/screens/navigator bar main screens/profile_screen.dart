@@ -200,12 +200,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _refreshProfileScreen() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
-      // Refresh logic here, e.g., re-fetch data from Firestore
-      // In this example, we are just delaying for 2 seconds
-      await Future.delayed(const Duration(seconds: 2));
+      // Fetch fresh data from server (not cache)
+      var userSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid)
+          .get(GetOptions(source: Source.server));
+
+      var postSnap = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('uid', isEqualTo: widget.uid)
+          .get(GetOptions(source: Source.server));
+
+      var currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(firebaseAuth)
+          .get(GetOptions(source: Source.server));
+
+      if (mounted) {
+        setState(() {
+          userData = userSnap.data()!;
+          postLength = postSnap.docs.length;
+          followers = userSnap.data()!['followers'].length;
+          following = userSnap.data()!['following'].length;
+          isFollowing = userSnap.data()!['followers'].contains(firebaseAuth);
+          isFollowBack =
+              currentUserDoc.data()!['followers'].contains(widget.uid);
+        });
+      }
+
+      // Refresh mutual followers
+      getMutualFollower();
+
+      // Small delay for smoother UX
+      await Future.delayed(const Duration(milliseconds: 300));
     } catch (e) {
-      print('Error refereshing new profile screen: $e');
+      print('Error refreshing profile screen: $e');
+      if (mounted) {
+        showSnackBar('Failed to refresh profile', context);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

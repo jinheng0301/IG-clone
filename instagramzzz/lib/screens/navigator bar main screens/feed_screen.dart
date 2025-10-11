@@ -11,17 +11,44 @@ import 'package:instagramzzz/widgets/post_card.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:image_picker/image_picker.dart';
 
-class FeedScreen extends StatelessWidget {
+class FeedScreen extends StatefulWidget {
   final uid;
   FeedScreen({required this.uid});
 
+  @override
+  State<FeedScreen> createState() => _FeedScreenState();
+}
+
+class _FeedScreenState extends State<FeedScreen> {
+  final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
+
   Future<void> _refreshFeed() async {
     try {
-      // Refresh logic here, e.g., re-fetch data from Firestore
-      // In this example, we are just delaying for 2 seconds
-      await Future.delayed(Duration(seconds: 2));
+      // Force refresh from server (not cache)
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid)
+          .get(GetOptions(source: Source.server));
+
+      await FirebaseFirestore.instance
+          .collection('posts')
+          .orderBy('datePublished', descending: true)
+          .limit(1)
+          .get(GetOptions(source: Source.server));
+
+      // Trigger rebuild by calling setState
+      if (mounted) {
+        setState(() {});
+      }
+
+      await Future.delayed(Duration(milliseconds: 300));
     } catch (e) {
-      print('Error refereshing new feed: $e');
+      print('Error refreshing feed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to refresh feed')),
+        );
+      }
     }
   }
 
@@ -69,16 +96,20 @@ class FeedScreen extends StatelessWidget {
               ],
             ),
       body: RefreshIndicator(
+        key: _refreshKey,
         onRefresh: _refreshFeed,
         // Using StreamBuilder to fetch user data and posts
         child: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection('users')
-              .doc(uid)
+              .doc(widget.uid)
               .snapshots(),
           builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
             List<dynamic> following = userSnapshot.data?.get('following') ?? [];
-            List<String> userIdsToShow = [uid, ...following.cast<String>()];
+            List<String> userIdsToShow = [
+              widget.uid,
+              ...following.cast<String>()
+            ];
 
             if (userSnapshot.connectionState == ConnectionState.waiting) {
               return Center(
@@ -165,11 +196,11 @@ class FeedScreen extends StatelessWidget {
                       );
                     }
 
-                    print('Profile Photo: $uid');
+                    print('Profile Photo: ${widget.uid}');
 
                     // Find the index of the current user in the userSnapshot
                     int currentUserIndex = userSnapshot.data!.docs.indexWhere(
-                      (user) => user.id == uid,
+                      (user) => user.id == widget.uid,
                       // Assuming 'id' is the field for user's uid
                     );
 

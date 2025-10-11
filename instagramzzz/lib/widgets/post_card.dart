@@ -43,22 +43,11 @@ class _PostCardState extends State<PostCard> {
           .collection('posts')
           .doc(widget.snap['postId'])
           .collection('comments')
-          .limit(1)
           .get();
 
       if (mounted) {
         setState(() {
           commentLength = snap.docs.length;
-        });
-      }
-    } catch (e) {
-      showSnackBar(e.toString(), context);
-    }
-
-    try {
-      if (mounted) {
-        setState(() {
-          // Update your state here
         });
       }
     } catch (e) {
