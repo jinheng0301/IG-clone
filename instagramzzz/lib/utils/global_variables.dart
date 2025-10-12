@@ -7,15 +7,21 @@ import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/reels_scre
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/search_screen.dart';
 
 const webScreenSize = 600;
+final firebaseAuth = FirebaseAuth.instance.currentUser!.uid;
 
-List<Widget> homeScreenItems = [
-  FeedScreen(
-    uid: FirebaseAuth.instance.currentUser!.uid,
-  ),
-  SearchScreen(),
-  const AddPostScreen(),
-  const ReelsScreen(),
-  ProfileScreen(
-    uid: FirebaseAuth.instance.currentUser!.uid,
-  ),
-];
+// Function that returns screens with optional keys
+List<Widget> getHomeScreenItems({Key? feedKey, Key? profileKey}) {
+  return [
+    FeedScreen(
+      key: feedKey,
+      uid: firebaseAuth,
+    ),
+    SearchScreen(),
+    const AddPostScreen(),
+    const ReelsScreen(),
+    ProfileScreen(
+      key: profileKey,
+      uid: firebaseAuth,
+    ),
+  ];
+}

@@ -13,7 +13,7 @@ import 'package:image_picker/image_picker.dart';
 
 class FeedScreen extends StatefulWidget {
   final uid;
-  FeedScreen({required this.uid});
+  FeedScreen({required this.uid, super.key});
 
   @override
   State<FeedScreen> createState() => _FeedScreenState();
@@ -45,9 +45,7 @@ class _FeedScreenState extends State<FeedScreen> {
     } catch (e) {
       print('Error refreshing feed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to refresh feed')),
-        );
+        showSnackBar('Failed to refresh feed', context);
       }
     }
   }

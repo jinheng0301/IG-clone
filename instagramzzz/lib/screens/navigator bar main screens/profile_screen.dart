@@ -23,7 +23,7 @@ import 'package:panara_dialogs/panara_dialogs.dart';
 class ProfileScreen extends StatefulWidget {
   final String uid;
 
-  ProfileScreen({required this.uid});
+  ProfileScreen({required this.uid, super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();

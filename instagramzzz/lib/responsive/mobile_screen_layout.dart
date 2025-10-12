@@ -20,6 +20,9 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
   bool isDisplayedAvatar = false;
   late PageController pageController;
 
+  // Add a key to force FeedScreen rebuild
+  Key _feedScreenKey = UniqueKey();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -79,6 +82,39 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
     });
   }
 
+  Future<void> _refreshFeed() async {
+    // Only refresh if we're on the home page
+    if (_page != 0) return;
+
+    try {
+      // Force refresh from server (not cache)
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid)
+          .get(GetOptions(source: Source.server));
+
+      await FirebaseFirestore.instance
+          .collection('posts')
+          .orderBy('datePublished', descending: true)
+          .limit(1)
+          .get(GetOptions(source: Source.server));
+
+      // Recreate FeedScreen with a new key to force rebuild
+      if (mounted) {
+        setState(() {
+          _feedScreenKey = UniqueKey();
+        });
+      }
+
+      await Future.delayed(Duration(milliseconds: 300));
+    } catch (e) {
+      print('Error refreshing feed: $e');
+      if (mounted) {
+        showSnackBar('Failed to refresh feed', context);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,7 +122,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
         controller: pageController,
         onPageChanged: onPageChanged,
         physics: NeverScrollableScrollPhysics(),
-        children: homeScreenItems,
+        children: getHomeScreenItems(feedKey: _feedScreenKey),
       ),
       bottomNavigationBar: ClipRRect(
         borderRadius: BorderRadius.vertical(
@@ -96,10 +132,21 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
           onTap: navigationTapped,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-                size: 30,
-                color: _page == 0 ? primaryColor : secondaryColor,
+              icon: GestureDetector(
+                onTap: () {
+                  // If already on home page, refresh
+                  if (_page == 0) {
+                    _refreshFeed();
+                  } else {
+                    // Navigate to home page
+                    navigationTapped(0);
+                  }
+                },
+                child: Icon(
+                  Icons.home,
+                  size: 30,
+                  color: _page == 0 ? primaryColor : secondaryColor,
+                ),
               ),
               label: '',
             ),
