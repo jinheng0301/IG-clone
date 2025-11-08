@@ -21,7 +21,7 @@ class ProfilePostScreen extends StatefulWidget {
 }
 
 class _ProfilePostScreenState extends State<ProfilePostScreen> {
-  late PageController _pageController;
+  PageController? _pageController;
   List<DocumentSnapshot> posts = [];
   int postLength = 0;
   var firebaseAuth = FirebaseAuth.instance.currentUser!.uid;
@@ -36,9 +36,6 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
     // TODO: implement initState
     getPhoto();
     getData();
-    _pageController = PageController(
-      initialPage: widget.initialIndex,
-    );
     super.initState();
   }
 
@@ -81,7 +78,33 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
           .where('uid', isEqualTo: widget.uid)
           .get();
 
+      // ✅ Sort manually
       posts = postSnap.docs;
+      posts.sort((a, b) {
+        Timestamp? aTime = (a.data() as Map<String, dynamic>)['datePublished'];
+        Timestamp? bTime = (b.data() as Map<String, dynamic>)['datePublished'];
+
+        if (aTime == null) return 1;
+        if (bTime == null) return -1;
+
+        return bTime.compareTo(aTime);
+      });
+
+      // ✅ Initialize PageController AFTER sorting
+      _pageController = PageController(
+        initialPage: widget.initialIndex,
+      );
+
+      print('=== ProfilePostScreen DEBUG ===');
+      print('Total posts: ${posts.length}');
+      print('Initial index: ${widget.initialIndex}');
+      if (posts.isNotEmpty && widget.initialIndex < posts.length) {
+        var postData =
+            posts[widget.initialIndex].data() as Map<String, dynamic>;
+        print(
+            'Post at index ${widget.initialIndex}: ${postData['description']}');
+      }
+      print('==============================');
 
       setState(() {});
     } catch (e) {
@@ -96,7 +119,7 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
   @override
   void dispose() {
     // TODO: implement dispose
-    _pageController.dispose();
+    _pageController?.dispose();
     super.dispose();
   }
 
@@ -142,7 +165,8 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
           ],
         ],
       ),
-      body: isLoading
+      body: isLoading || _pageController == null
+          // ✅ Check if PageController is ready
           ? Center(
               child: LoadingAnimationWidget.hexagonDots(
                 color: Colors.yellow,
@@ -150,7 +174,8 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
               ),
             )
           : PageView.builder(
-              controller: _pageController,
+              controller: _pageController!,
+              // non-null assertion since we check for null above
               physics: BouncingScrollPhysics(),
               scrollDirection: Axis.vertical,
               itemCount: posts.length,

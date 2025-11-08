@@ -51,7 +51,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // TODO: implement initState
     super.initState();
     getData();
-    showProfilePost();
     getMutualFollower();
   }
 
@@ -102,59 +101,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .where('uid', isEqualTo: widget.uid)
           .get(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.none) {
-          return const Center(
-            child: Text('No images to show.'),
-          );
-        } else if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: LoadingAnimationWidget.hexagonDots(
               color: Colors.yellow,
               size: 40,
             ),
           );
-        } else {
-          return GridView.builder(
-            shrinkWrap: true,
-            itemCount: (snapshot.data as dynamic)?.docs?.length ?? 0,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 5,
-              mainAxisSpacing: 1.5,
-              childAspectRatio: 1,
-            ),
-            itemBuilder: (context, index) {
-              DocumentSnapshot snap = (snapshot.data! as dynamic).docs[index];
+        }
 
-              // Check if the 'posturl' field is not null before creating NetworkImage
-              if ((snap.data()! as dynamic)['postUrl'] != null) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfilePostScreen(
-                          uid: widget.uid,
-                          postId: snap.id,
-                          initialIndex: index,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Image(
-                    image: NetworkImage(
-                      (snap.data()! as dynamic)['postUrl'].toString(),
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                );
-              } else {
-                // Handle the case where 'posturl' is null (you can show a placeholder)
-                return const Text('No image available');
-              }
-            },
+        if (snapshot.hasError) {
+          print('Error loading posts: ${snapshot.error}');
+          return Center(
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: TextStyle(color: Colors.white),
+            ),
           );
         }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(
+            child: Text('No images to show.'),
+          );
+        }
+
+        // ✅ Sort posts manually by datePublished
+        List<DocumentSnapshot> sortedPosts = snapshot.data!.docs;
+        sortedPosts.sort((a, b) {
+          Timestamp? aTime =
+              (a.data() as Map<String, dynamic>)['datePublished'];
+          Timestamp? bTime =
+              (b.data() as Map<String, dynamic>)['datePublished'];
+
+          // Handle null timestamps
+          if (aTime == null) return 1;
+          if (bTime == null) return -1;
+
+          // Sort descending (newest first)
+          return bTime.compareTo(aTime);
+        });
+
+        // ✅ DEBUG: Print post order
+        print('=== POST ORDER DEBUG ===');
+        for (var i = 0; i < snapshot.data!.docs.length; i++) {
+          var doc = snapshot.data!.docs[i];
+          var data = doc.data();
+          print(
+            'Index $i: ${data['description']} - Date: ${data['datePublished']}',
+          );
+        }
+        print('======================');
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: sortedPosts.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 5,
+            mainAxisSpacing: 1.5,
+            childAspectRatio: 1,
+          ),
+          itemBuilder: (context, index) {
+            DocumentSnapshot snap = sortedPosts[index];
+            var postData = snap.data() as Map<String, dynamic>;
+
+            if (postData['postUrl'] != null) {
+              return GestureDetector(
+                onTap: () {
+                  print('Tapped post at index $index with postId: ${snap.id}');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfilePostScreen(
+                        uid: widget.uid,
+                        postId: snap.id,
+                        initialIndex: index,
+                      ),
+                    ),
+                  );
+                },
+                child: Image(
+                  image: NetworkImage(postData['postUrl'].toString()),
+                  fit: BoxFit.cover,
+                ),
+              );
+            } else {
+              return const Text('No image available');
+            }
+          },
+        );
       },
     );
   }
