@@ -22,7 +22,7 @@ class ProfilePostScreen extends StatefulWidget {
 
 class _ProfilePostScreenState extends State<ProfilePostScreen> {
   PageController? _pageController;
-  List<DocumentSnapshot> posts = [];
+  List<String> postIds = [];
   int postLength = 0;
   var firebaseAuth = FirebaseAuth.instance.currentUser!.uid;
   var userData = {};
@@ -79,7 +79,7 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
           .get();
 
       // ✅ Sort manually
-      posts = postSnap.docs;
+      List<DocumentSnapshot> posts = postSnap.docs;
       posts.sort((a, b) {
         Timestamp? aTime = (a.data() as Map<String, dynamic>)['datePublished'];
         Timestamp? bTime = (b.data() as Map<String, dynamic>)['datePublished'];
@@ -89,6 +89,9 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
 
         return bTime.compareTo(aTime);
       });
+
+      // Store only post IDs
+      postIds = posts.map((doc) => doc.id).toList();
 
       // ✅ Initialize PageController AFTER sorting
       _pageController = PageController(
@@ -178,10 +181,34 @@ class _ProfilePostScreenState extends State<ProfilePostScreen> {
               // non-null assertion since we check for null above
               physics: BouncingScrollPhysics(),
               scrollDirection: Axis.vertical,
-              itemCount: posts.length,
+              itemCount: postIds.length,
               itemBuilder: (context, index) {
-                return PostCard(
-                  snap: posts[index].data() as Map<String, dynamic>,
+                // Use StreamBuilder to get real-time updates
+                return StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('posts')
+                      .doc(postIds[index])
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: LoadingAnimationWidget.hexagonDots(
+                          color: Colors.yellow,
+                          size: 40,
+                        ),
+                      );
+                    }
+
+                    if (!snapshot.hasData || !snapshot.data!.exists) {
+                      return Center(
+                        child: Text('Post not found'),
+                      );
+                    }
+
+                    return PostCard(
+                      snap: snapshot.data!.data() as Map<String, dynamic>,
+                    );
+                  },
                 );
               },
             ),
