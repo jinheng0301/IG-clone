@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
-    id 'com.google.gms.google-services' // Keep this if using Firebase
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
     id 'dev.flutter.flutter-gradle-plugin'
 }
 
@@ -30,19 +30,15 @@ if (flutterRoot == null) {
 
 android {
     namespace "com.example.instagramzzz"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdk flutter.compileSdkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
-    }
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
+        jvmTarget = '17'
     }
 
     defaultConfig {
@@ -50,8 +46,8 @@ android {
         applicationId "com.example.instagramzzz"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdk flutter.minSdkVersion
+        targetSdk flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
@@ -68,8 +64,4 @@ android {
 
 flutter {
     source '../..'
-}
-
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
