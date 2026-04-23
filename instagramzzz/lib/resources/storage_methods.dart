@@ -1,18 +1,18 @@
 import 'dart:typed_data';
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:instagramzzz/config/cloudinary_config.dart';
 import 'package:uuid/uuid.dart';
 
 class StorageMethods {
-  final FirebaseStorage _storage =
-      FirebaseStorage.instanceFor(bucket: 'ig-clone-2c574.appspot.com');
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Default profile picture URL - store this in Firebase Storage beforehand
+  // Replace this with a real public fallback image URL if profile upload is optional.
   static const String DEFAULT_PROFILE_PICTURE =
-      'YOUR_DEFAULT_PROFILE_PICTURE_URL_IN_FIREBASE_STORAGE';
+      'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg';
 
-  // add image to firebase storage
+  // Upload image bytes to Cloudinary and return the hosted URL.
   Future<String> uploadImageToStorage(
     String childName,
     Uint8List? file,
@@ -24,36 +24,55 @@ class StorageMethods {
         return DEFAULT_PROFILE_PICTURE;
       }
 
-      // Create reference with timestamp to avoid naming conflicts
-      String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference ref =
-          _storage.ref().child(childName).child(_auth.currentUser!.uid);
-
-      if (isPost) {
-        String id = const Uuid().v1();
-        ref = ref.child(id);
-      } else {
-        // For profile pictures, use timestamp to avoid cache issues
-        ref = ref.child('profile_$timestamp');
+      if (!CloudinaryConfig.isConfigured) {
+        throw Exception(
+          'Cloudinary is not configured. Pass CLOUDINARY_CLOUD_NAME and CLOUDINARY_UPLOAD_PRESET with --dart-define.',
+        );
       }
 
-      // Set proper content type and metadata
-      SettableMetadata metadata = SettableMetadata(
-        contentType: 'image/jpeg',
-        customMetadata: {'timestamp': timestamp},
+      String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      String userId = _auth.currentUser!.uid;
+      String publicId = isPost ? const Uuid().v1() : 'profile_$timestamp';
+
+      final uri = Uri.parse(
+        'https://api.cloudinary.com/v1_1/${CloudinaryConfig.cloudName}/image/upload',
       );
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['upload_preset'] = CloudinaryConfig.uploadPreset
+        ..fields['folder'] = '$childName/$userId'
+        ..fields['public_id'] = publicId
+        ..fields['overwrite'] = isPost ? 'false' : 'true'
+        ..files.add(
+          http.MultipartFile.fromBytes(
+            'file',
+            file,
+            filename: '$publicId.jpg',
+          ),
+        );
 
-      // Upload with metadata
-      UploadTask uploadTask = ref.putData(file, metadata);
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
 
-      // Add error handling and retry logic
-      TaskSnapshot snap = await uploadTask.whenComplete(() {});
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final error = body['error'];
+        final message = error is Map<String, dynamic>
+            ? error['message']
+            : response.body;
+        throw Exception('Cloudinary upload failed: $message');
+      }
 
-      // Get download URL
-      String downloadURL = await snap.ref.getDownloadURL();
-      return downloadURL;
+      final secureUrl = body['secure_url'] as String?;
+      if (secureUrl == null || secureUrl.isEmpty) {
+        throw Exception('Cloudinary upload did not return a secure_url.');
+      }
+
+      return secureUrl;
     } catch (e) {
       print('Error uploading image: $e');
+      if (isPost) {
+        rethrow;
+      }
       return DEFAULT_PROFILE_PICTURE;
     }
   }

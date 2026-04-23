@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramzzz/providers/user_provider.dart';
 import 'package:instagramzzz/resources/firestore_method.dart';
@@ -43,7 +44,7 @@ class _CommentCardState extends State<CommentCard> {
               );
             },
             child: CircleAvatar(
-              backgroundImage: NetworkImage(
+              backgroundImage: CachedNetworkImageProvider(
                 widget.snap['profPic'],
               ),
               radius: 18,

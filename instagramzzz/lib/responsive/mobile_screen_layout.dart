@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramzzz/utils/colors.dart';
@@ -179,7 +180,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
                   ? CircleAvatar(
                       radius: 13,
                       backgroundColor: Colors.grey,
-                      backgroundImage: NetworkImage(
+                      backgroundImage: CachedNetworkImageProvider(
                         userData['photoUrl'] ?? 'Photo not available',
                       ),
                     )

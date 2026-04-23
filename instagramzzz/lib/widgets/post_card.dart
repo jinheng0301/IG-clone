@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramzzz/models/user.dart' as model;
@@ -9,7 +9,6 @@ import 'package:instagramzzz/screens/extend_screens/user_liked_screen.dart';
 import 'package:instagramzzz/screens/navigator%20bar%20main%20screens/profile_screen.dart';
 import 'package:instagramzzz/utils/colors.dart';
 import 'package:instagramzzz/utils/global_variables.dart';
-import 'package:instagramzzz/utils/utils.dart';
 import 'package:instagramzzz/widgets/like_animation.dart';
 import 'package:instagramzzz/widgets/zoom_image.dart';
 import 'package:intl/intl.dart';
@@ -26,103 +25,6 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool isLikeAnimating = false;
-  int commentLength = 0;
-  String mutualFollowersText = '';
-  bool isLoadingMutual = false;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getComment();
-  }
-
-  void getComment() async {
-    try {
-      QuerySnapshot snap = await FirebaseFirestore.instance
-          .collection('posts')
-          .doc(widget.snap['postId'])
-          .collection('comments')
-          .get();
-
-      if (mounted) {
-        setState(() {
-          commentLength = snap.docs.length;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        showSnackBar(e.toString(), context);
-      }
-    }
-  }
-
-  Future<void> getMutualFollower() async {
-    if (isLoadingMutual) return; // Prevent multiple calls
-
-    setState(() {
-      isLoadingMutual = true;
-    });
-
-    try {
-      // Only fetch if there are likes
-      if (widget.snap['likes'].isEmpty) {
-        if (mounted) {
-          setState(() {
-            mutualFollowersText = '';
-            isLoadingMutual = false;
-          });
-        }
-        return;
-      }
-
-      final currentUser = FirebaseAuth.instance.currentUser!;
-      final currentUserDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .get();
-
-      if (!currentUserDoc.exists) return;
-
-      List following = currentUserDoc.data()!['following'] ?? [];
-      List<String> mutualUsernames = [];
-
-      // Only check first 2 mutual followers
-      int foundCount = 0;
-      for (var uid in widget.snap['likes']) {
-        if (foundCount >= 2) break;
-
-        if (following.contains(uid)) {
-          // Fetch username
-          final userDoc = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(uid)
-              .get();
-
-          if (userDoc.exists && userDoc.data() != null) {
-            mutualUsernames.add(userDoc.data()!['username']);
-            foundCount++;
-          }
-        }
-      }
-
-      if (mounted) {
-        setState(() {
-          mutualFollowersText = mutualUsernames.isNotEmpty
-              ? 'Liked by ${mutualUsernames.join(', ')}'
-              : '';
-          isLoadingMutual = false;
-        });
-      }
-    } catch (e) {
-      print('Error getting mutual followers: $e');
-      if (mounted) {
-        setState(() {
-          isLoadingMutual = false;
-        });
-      }
-    }
-  }
 
   Future<void> _showDialogBox() async {
     return PanaraConfirmDialog.show(
@@ -153,6 +55,9 @@ class _PostCardState extends State<PostCard> {
     final model.User user = Provider.of<UserProvider>(context).getUser;
     var firebaseAuth = FirebaseAuth.instance.currentUser!.uid;
     final width = MediaQuery.of(context).size.width;
+    final int commentCount = widget.snap['commentCount'] is int
+        ? widget.snap['commentCount'] as int
+        : (widget.snap['commentCount'] ?? 0) as int;
 
     return Container(
       color: width > webScreenSize ? secondaryColor : mobileBackgroundColor,
@@ -178,7 +83,7 @@ class _PostCardState extends State<PostCard> {
                     );
                   },
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(
+                    backgroundImage: CachedNetworkImageProvider(
                       widget.snap['profImage'],
                     ),
                   ),
@@ -370,7 +275,7 @@ class _PostCardState extends State<PostCard> {
                   style: Theme.of(context).textTheme.titleSmall!.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
-                  child: Text(commentLength.toString()),
+                  child: Text(commentCount.toString()),
                 ),
                 IconButton(
                   onPressed: () {},
@@ -430,26 +335,6 @@ class _PostCardState extends State<PostCard> {
                 //     ],
                 //   ),
                 // ),
-
-                // Only show mutual followers if we have text
-                if (mutualFollowersText.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      mutualFollowersText,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                  )
-                ] else if (!isLoadingMutual &&
-                    widget.snap['likes'].isNotEmpty) ...[
-                  // Lazy load mutual followers when widget becomes visible
-                  FutureBuilder(
-                    future: Future.delayed(Duration(milliseconds: 300), () {
-                      if (mounted) getMutualFollower();
-                    }),
-                    builder: (context, snapshot) => SizedBox.shrink(),
-                  ),
-                ],
 
                 Row(
                   children: [

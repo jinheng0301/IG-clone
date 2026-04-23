@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -99,6 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       future: FirebaseFirestore.instance
           .collection('posts')
           .where('uid', isEqualTo: widget.uid)
+          .orderBy('datePublished', descending: true)
           .get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -126,32 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
         }
 
-        // ✅ Sort posts manually by datePublished
         List<DocumentSnapshot> sortedPosts = snapshot.data!.docs;
-        sortedPosts.sort((a, b) {
-          Timestamp? aTime =
-              (a.data() as Map<String, dynamic>)['datePublished'];
-          Timestamp? bTime =
-              (b.data() as Map<String, dynamic>)['datePublished'];
-
-          // Handle null timestamps
-          if (aTime == null) return 1;
-          if (bTime == null) return -1;
-
-          // Sort descending (newest first)
-          return bTime.compareTo(aTime);
-        });
-
-        // ✅ DEBUG: Print post order
-        print('=== POST ORDER DEBUG ===');
-        for (var i = 0; i < snapshot.data!.docs.length; i++) {
-          var doc = snapshot.data!.docs[i];
-          var data = doc.data();
-          print(
-            'Index $i: ${data['description']} - Date: ${data['datePublished']}',
-          );
-        }
-        print('======================');
 
         return GridView.builder(
           shrinkWrap: true,
@@ -183,7 +160,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   );
                 },
                 child: Image(
-                  image: NetworkImage(postData['postUrl'].toString()),
+                  image: CachedNetworkImageProvider(
+                    postData['postUrl'].toString(),
+                  ),
                   fit: BoxFit.cover,
                 ),
               );
@@ -480,7 +459,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   CircleAvatar(
                                     radius: 40,
                                     backgroundColor: Colors.grey,
-                                    backgroundImage: NetworkImage(
+                                    backgroundImage: CachedNetworkImageProvider(
                                       userData['photoUrl'],
                                     ),
                                   ),

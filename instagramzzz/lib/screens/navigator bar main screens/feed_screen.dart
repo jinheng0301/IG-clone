@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagramzzz/models/user.dart';
@@ -21,6 +22,20 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> {
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
+  static const int _feedPageSize = 20;
+
+  List<String> _storyUserIds(String currentUid, List<dynamic> following) {
+    final ids = <String>{currentUid};
+    for (final uid in following) {
+      if (uid is String && uid.isNotEmpty) {
+        ids.add(uid);
+      }
+      if (ids.length >= 10) {
+        break;
+      }
+    }
+    return ids.toList();
+  }
 
   Future<void> _refreshFeed() async {
     try {
@@ -137,6 +152,7 @@ class _FeedScreenState extends State<FeedScreen> {
               stream: FirebaseFirestore.instance
                   .collection('posts')
                   .orderBy('datePublished', descending: true)
+                  .limit(_feedPageSize)
                   .snapshots(),
               builder: (
                 context,
@@ -172,8 +188,12 @@ class _FeedScreenState extends State<FeedScreen> {
                 }
 
                 // List of story circle avatars
+                final storyIds = _storyUserIds(widget.uid, following);
                 var storyCircleAvatars = FutureBuilder(
-                  future: FirebaseFirestore.instance.collection('users').get(),
+                  future: FirebaseFirestore.instance
+                      .collection('users')
+                      .where(FieldPath.documentId, whereIn: storyIds)
+                      .get(),
                   builder: (
                     context,
                     AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
@@ -194,63 +214,56 @@ class _FeedScreenState extends State<FeedScreen> {
                       );
                     }
 
-                    print('Profile Photo: ${widget.uid}');
-
-                    // Find the index of the current user in the userSnapshot
                     int currentUserIndex = userSnapshot.data!.docs.indexWhere(
                       (user) => user.id == widget.uid,
-                      // Assuming 'id' is the field for user's uid
                     );
-
-                    print('Current User Index: $currentUserIndex');
 
                     List<Widget> circleAvatars = [];
 
-                    // Add the current user's avatar with add button
-                    circleAvatars.add(
-                      Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Column(
-                          children: [
-                            Stack(
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    print('show the current user avatar');
-                                  },
-                                  child: CircleAvatar(
-                                    radius: 35,
-                                    backgroundImage: NetworkImage(
-                                      userSnapshot.data!.docs[currentUserIndex]
-                                          ['photoUrl'],
+                    if (currentUserIndex != -1) {
+                      circleAvatars.add(
+                        Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: Column(
+                            children: [
+                              Stack(
+                                children: [
+                                  InkWell(
+                                    onTap: () {},
+                                    child: CircleAvatar(
+                                      radius: 35,
+                                      backgroundImage:
+                                          CachedNetworkImageProvider(
+                                        userSnapshot.data!.docs[currentUserIndex]
+                                            ['photoUrl'],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Positioned(
-                                  bottom: -18,
-                                  left: 30,
-                                  child: IconButton(
-                                    color: Colors.white,
-                                    onPressed: () async {
-                                      await pickImage(ImageSource.camera);
-                                      Navigator.of(context).pop();
-                                    },
-                                    iconSize: 28,
-                                    icon: Icon(Icons.add),
+                                  Positioned(
+                                    bottom: -18,
+                                    left: 30,
+                                    child: IconButton(
+                                      color: Colors.white,
+                                      onPressed: () async {
+                                        await pickImage(ImageSource.camera);
+                                        Navigator.of(context).pop();
+                                      },
+                                      iconSize: 28,
+                                      icon: Icon(Icons.add),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              userSnapshot.data!.docs[currentUserIndex]
-                                  ['username'],
-                            ),
-                          ],
+                                ],
+                              ),
+                              Text(
+                                userSnapshot.data!.docs[currentUserIndex]
+                                    ['username'],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
 
-                    // Add other registered users' avatars without add button
                     for (int index = 0;
                         index < userSnapshot.data!.docs.length;
                         index++) {
@@ -269,7 +282,9 @@ class _FeedScreenState extends State<FeedScreen> {
                                   child: CircleAvatar(
                                     radius: 35,
                                     backgroundImage:
-                                        NetworkImage(user.photoUrl),
+                                        CachedNetworkImageProvider(
+                                      user.photoUrl,
+                                    ),
                                   ),
                                 ),
                                 Text(user.username),
@@ -305,7 +320,7 @@ class _FeedScreenState extends State<FeedScreen> {
                       child: storyCircleAvatars,
                     ),
                     ListView.builder(
-                      physics: BouncingScrollPhysics(),
+                      physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: filteredPosts.length,
                       itemBuilder: (context, index) {

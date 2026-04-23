@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:instagramzzz/screens/extend_screens/profile_post_screen.dart';
@@ -57,6 +58,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     'username',
                     isGreaterThanOrEqualTo: searchController.text,
                   )
+                  .limit(20)
                   .get(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -88,7 +90,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         },
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: NetworkImage(photoUrl),
+                            backgroundImage:
+                                CachedNetworkImageProvider(photoUrl),
                           ),
                           title: Text(username),
                         ),
@@ -104,7 +107,11 @@ class _SearchScreenState extends State<SearchScreen> {
           : RefreshIndicator(
             onRefresh: _refreshSearchScreen,
             child: FutureBuilder(
-                future: FirebaseFirestore.instance.collection('posts').get(),
+                future: FirebaseFirestore.instance
+                    .collection('posts')
+                    .orderBy('datePublished', descending: true)
+                    .limit(60)
+                    .get(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     // if snapshot has no data
@@ -140,9 +147,18 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                             );
                           },
-                          child: Image.network(
-                            (snapshot.data! as dynamic).docs[index]['postUrl'],
+                          child: CachedNetworkImage(
+                            imageUrl:
+                                (snapshot.data! as dynamic).docs[index]['postUrl'],
                             fit: BoxFit.cover,
+                            placeholder: (context, url) => const AspectRatio(
+                              aspectRatio: 1,
+                              child: ColoredBox(color: Colors.black12),
+                            ),
+                            errorWidget: (context, url, error) => const SizedBox(
+                              height: 120,
+                              child: Center(child: Icon(Icons.broken_image)),
+                            ),
                           ),
                         );
                       } else {

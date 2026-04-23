@@ -16,7 +16,12 @@ import 'package:image_picker/image_picker.dart';
 // }
 
 Future<Uint8List?> pickImage(ImageSource source) async {
-  XFile? pickedFile = await ImagePicker().pickImage(source: source);
+  XFile? pickedFile = await ImagePicker().pickImage(
+    source: source,
+    imageQuality: 75,
+    maxWidth: 1440,
+    maxHeight: 1440,
+  );
 
   if (pickedFile != null) {
     File file = File(pickedFile.path);
